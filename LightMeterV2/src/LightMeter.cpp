@@ -1,21 +1,10 @@
 #include "LightMeter.h"
 
-// Pinout declaration of TeensyView module
-// The module is in Alternate configuration
-#define PIN_RESET 2 // RST
-#define PIN_DC 21   // DC
-#define PIN_CS 20   // CS
-#define PIN_SCK 14  // SCK
-#define PIN_MOSI 7  // MOSI
-
-
-#define PIN_POWER_ON 16
-//const uint8_t PIN_POWER_ON = 16;
-
-// K Value
-#define KValue 16
-
-#define LIPO_CAPACITY 1000 // mAh
+/* TODO
+ * RGB handling of the encoder
+ * User defined K-constant value
+ * fStop user switcher
+ */
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 

@@ -23,6 +23,27 @@
 // Custom OLED routines
 #include "OledFunctions.h"
 
+// Pinout declaration of TeensyView module
+// The module is in Alternate configuration
+#define PIN_RESET 2 // RST
+#define PIN_DC 21   // DC
+#define PIN_CS 20   // CS
+#define PIN_SCK 14  // SCK
+#define PIN_MOSI 7  // MOSI
+
+
+#define PIN_POWER_ON 16
+
+/* Calibration constant (default was: 16)
+ * ISO 2720:1973 recommands a K range from 10.6 to 13.4
+ * Sekonic, Canon and Nikon uses 12.5
+ * Minolta, Kenko and Pentax uses 14
+ * Difference between thoses two is 1/6 EV
+ */
+#define KValue 12.5
+
+#define LIPO_CAPACITY 1000 // mAh
+
 // Menu State
 enum MState_t {
     Minit,                  // Initial state page
