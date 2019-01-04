@@ -74,18 +74,11 @@ void cfgPushButton(Bounce &bB) {
   bB.interval(15); // set to 15ms, default 10ms
 }
 
-void onButtonReleased(Button &btn, uint16_t duration) {
-  //
-}
-
 LightMeter::LightMeter(void) {
   // Setup Pushbuttons and encoder
   uiPbEnter.configureButton(cfgPushButton);
   uiPbUp.configureButton(cfgPushButton);
   uiPbDown.configureButton(cfgPushButton);
-  uiPbEnter.onRelease(onButtonReleased);
-  uiPbUp.onRelease(onButtonReleased);
-  uiPbDown.onRelease(onButtonReleased);
 
   // Defaults
   luxAccumulator = 0;
@@ -127,7 +120,7 @@ void LightMeter::powerDown() {
   // Last minute things
   saveConfigUser();
   delay(10);
-  
+
   // Try to shutdown
   digitalWrite(PIN_POWER_ON, LOW);
 }
