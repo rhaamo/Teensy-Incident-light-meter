@@ -1,9 +1,6 @@
-#include "stdint.h"
-#include "PanelComponents.h"
+#include <Arduino.h>
+
 #include "LightMeterPanelComponents.h"
-#include "HardwareInterfaces.h"
-#include "LightMeterHardwareInterfaces.h"
-#include "Arduino.h"
 
 //---Knob--------------------------------------------------------
 RotoryEncoder::RotoryEncoder( void )

@@ -4,8 +4,10 @@
 //Extends "HardwareInterfaces.h"
 
 #include "stdint.h"
-#include "HardwareInterfaces.h"
 #include "timeKeeper.h"
+#include "PanelComponents.h"
+#include "HardwareInterfaces.h"
+#include "LightMeterHardwareInterfaces.h"
 
 //---Knob--------------------------------------------------------
 class RotoryEncoder : public PanelComponent

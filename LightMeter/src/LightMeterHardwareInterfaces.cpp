@@ -1,7 +1,6 @@
-#include "HardwareInterfaces.h"
-#include "LightMeterHardwareInterfaces.h"
-
 #include <Arduino.h>
+
+#include "LightMeterHardwareInterfaces.h"
 
 //Arduino Analog in
 TeensyEncoderIn::TeensyEncoderIn( int inputPin1, int inputPin2 )

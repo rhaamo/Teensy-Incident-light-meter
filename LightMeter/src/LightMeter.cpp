@@ -1,6 +1,6 @@
+#include <Arduino.h>
+
 #include "LuxPanel.h"
-#include <SparkFunTSL2561.h>
-#include <SparkFunBQ27441.h>
 
 ///////////////////////////////////
 // TeensyView Object Declaration //

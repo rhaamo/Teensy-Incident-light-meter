@@ -2,7 +2,6 @@
 #define LIGHT_METER_HARDWARE_INTERFACES_H
 
 #include "HardwareInterfaces.h"
-#include <Arduino.h>
 #include <Encoder.h>
 
 //Specific DataObject s are used to create local instances that construct

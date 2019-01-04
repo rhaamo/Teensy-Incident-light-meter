@@ -2,11 +2,13 @@
 #define LUX_PANEL_H
 
 #include "Panel.h"
-//#include "PanelComponents.h"  //included by panel
-//#include "HardwareInterfaces.h"  //included by panel
 #include "LightMeterPanelComponents.h"
 #include "TeensyView.h"
 #include <SparkFunBQ27441.h>
+#include <SparkFunTSL2561.h>
+//#include "panelComponents.h"
+#include "HardwareInterfaces.h"
+#include "LightMeterHardwareInterfaces.h"
 
 extern const float fStopTable[];
 extern const float exposureTable[];

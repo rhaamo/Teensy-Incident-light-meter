@@ -1,12 +1,6 @@
-#include "LuxPanel.h"
-#include "panelComponents.h"
-#include "LightMeterPanelComponents.h"
-#include "HardwareInterfaces.h"
-#include "LightMeterHardwareInterfaces.h"
 #include <Arduino.h>
-#include "TeensyView.h"
-#include <SparkFunTSL2561.h>
-#include <SparkFunBQ27441.h>
+
+#include "LuxPanel.h"
 
 #define KValue 16
 
