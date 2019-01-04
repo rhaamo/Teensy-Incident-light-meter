@@ -334,8 +334,8 @@ public:
 		print("F");
 		setFontType(1);
 		line(xIn + 4, yIn + 10, xIn + 9, yIn + 2, WHITE, NORM);
-		long whole = (long)fNumIn;
-		float partial = ( fNumIn - (long)fNumIn );
+		//long whole = (long)fNumIn;
+		//float partial = ( fNumIn - (long)fNumIn );
 		//Print 1 dec
 		setCursor(xIn + 10,yIn + 5);
 		print( fNumIn );
