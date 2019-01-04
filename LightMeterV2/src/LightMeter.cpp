@@ -125,15 +125,21 @@ void LightMeter::getLuxAndCompute(bool fstop) {
     return;
   }
 
+  /*
+   * exposure time = stop squared * K / ( ISO * Lux )
+   * f x f    Lux x ISO
+   * -----  = ---------
+   * shut       K cal
+   */
+
   // Returns true if sensor is not saturated
   good = luxMeter.getLux(gain, sensorMs, data0, data1, tempLux);
   updateLux(tempLux);
   if (fstop) {
-    // T value
-    // exposure time = stop squared * K / ( ISO * Lux )
+    // T value; Shutter time
     value = pow(fStopTable[ConfigUser.fStopSetting], 2) * KValue / (lux * (isoTable[ConfigUser.isoSetting]));
   } else {
-    // N value
+    // N value; Aperture
     value = sqrt((exposureTable[ConfigUser.exposureSetting] * lux * isoTable[ConfigUser.isoSetting]) / KValue);
   }
   oled.eraseLowerArea();
