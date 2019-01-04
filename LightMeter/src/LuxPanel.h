@@ -6,7 +6,6 @@
 #include "TeensyView.h"
 #include <SparkFunBQ27441.h>
 #include <SparkFunTSL2561.h>
-//#include "panelComponents.h"
 #include "HardwareInterfaces.h"
 #include "LightMeterHardwareInterfaces.h"
 
@@ -15,8 +14,7 @@ extern const float exposureTable[];
 extern const float isoTable[];
 extern uint8_t isoTableSize;
 
-enum PState_t
-{
+enum PState_t {
 	PInit,
 	PDisplayPhotoValueInit,
 	PDisplayPhotoValue,
@@ -32,15 +30,13 @@ enum PState_t
 	PDisplayLuxValue,
 };
 
-enum holdState_t
-{
+enum holdState_t {
 	hSRun,
 	hSAveraging,
 	hSHeld
 };
 
-class LuxPanel : public Panel
-{
+class LuxPanel : public Panel {
 public:
 	LuxPanel( void );
 	void tickStateMachine( int msTicksDelta );

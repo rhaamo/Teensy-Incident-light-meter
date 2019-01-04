@@ -2,14 +2,13 @@
 
 #include "LuxPanel.h"
 
-///////////////////////////////////
-// TeensyView Object Declaration //
-///////////////////////////////////
-#define PIN_RESET 2  // Connect RST to pin 2
-#define PIN_DC    21  // Connect DC to pin 21
-#define PIN_CS    20 // Connect CS to pin 20
-#define PIN_SCK   14 // Connect SCK to pin 14
-#define PIN_MOSI  7  // Connect MOSI to pin 7
+// Pinout declaration of TeensyView module
+// The module is in Alternate configuration
+#define PIN_RESET 2   // RST
+#define PIN_DC    21  // DC
+#define PIN_CS    20  // CS
+#define PIN_SCK   14  // SCK
+#define PIN_MOSI  7   // MOSI
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
@@ -22,21 +21,17 @@ const uint8_t PIN_POWER_ON = 16;
 
 LuxPanel myLuxPanel;
 
-void setup()
-{
+void setup() {
 	//Assert power on pin
 	pinMode(PIN_POWER_ON, OUTPUT);
 	digitalWrite(PIN_POWER_ON, HIGH);
 	Serial.begin(115200);
 	
-	//lipo is defined within library
-	if (!lipo.begin()) // begin() will return true if communication is successful
-	{
+	// begin() will return true if communication is successful
+	if (!lipo.begin()) 	{
 		//bad state happenings
 		myLuxPanel.lipoGood = false;
-	}
-	else
-	{
+	} else {
 		myLuxPanel.lipoGood = true;
 		lipo.setCapacity(1000);
 	}
@@ -50,14 +45,11 @@ void setup()
 	light.begin();
 	unsigned char ID;
 	
-	if (light.getID(ID))
-	{
+	if (light.getID(ID)) {
 		Serial.print("Got factory ID: 0x");
 		Serial.print(ID,HEX);
 		Serial.println(", should be 0x5_");
-	}
-	else
-	{
+	} else {
 		Serial.println("ERROR");
 	}
 	gain = 0;
@@ -66,12 +58,9 @@ void setup()
 	light.setTiming(gain,time,ms);
 	Serial.println("Powerup...");
 	light.setPowerUp();
-
-	
 }
 
-void loop()
-{
+void loop() {
 	delay(10);
 	myLuxPanel.tickStateMachine(10);
 	//Serial.println("End of loop");
