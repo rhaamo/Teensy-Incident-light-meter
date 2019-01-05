@@ -473,6 +473,13 @@ void LightMeter::process(void) {
       }
       break;
 
+    case MFStopRangeInit:
+    case MFStopRange:
+    case MKCalibrationInit:
+    case MKCalibration:
+    case MIntegrationTimeInit:
+    case MIntegrationTime:
+
     default:
       nextState = Minit;
       break;

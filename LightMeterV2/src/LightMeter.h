@@ -55,10 +55,17 @@ enum MState_t {
     MSetISO,                // ISO Selection
     MSystemInit,
     MSystem,                // System informations
+    MDisplayLuxValueInit,
+    MDisplayLuxValue,       // Lux value only
     MMaryInit,
     MMary,                  // <3
-    MDisplayLuxValueInit,
-    MDisplayLuxValue        // Lux value only
+    // Not yet implemented
+    MFStopRangeInit,
+    MFStopRange,            // Select a fStop range from a few pre-determinated
+    MKCalibrationInit,
+    MKCalibration,          // Change the K calibration value
+    MIntegrationTimeInit,
+    MIntegrationTime,       // Change the sensor integration time
 };
 
 // Hold State
@@ -103,6 +110,7 @@ const float fStopTable[27] = {1.4, 1.8, 1.9, 2, 2.2, 2.5, 2.8,
 							  14, 16, 18, 20, 22};
 
 const float exposureTable[3] = {0.041666666, 0.033333333, 0.016666666};
+
 #define ISO_COUNT 9
 uint8_t isoTableSize = ISO_COUNT;
 const float isoTable[ISO_COUNT] = {25, 100, 125, 200, 400, 800, 1600, 3200, 6400};
@@ -147,6 +155,7 @@ class LightMeter {
 	    int addrConfigUser = 0;      // Always save at position 0 in EEPROM
         uint32_t addrMarker = 2000;       // Store marker at 2000 bytes in EEPROM
 
+        // Static init of the encoder value
         long encoderPos = -999;
 
         CfgUser ConfigUser;
