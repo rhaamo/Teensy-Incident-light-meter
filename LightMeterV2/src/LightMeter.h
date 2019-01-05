@@ -124,7 +124,7 @@ class LightMeter {
         bool lipoGood;
         unsigned char sensorID;
         unsigned char sensorTime = 2;
-        unsigned int  sensorMs; // Integration ("shutter") time in milliseconds
+        unsigned int  sensorMs = 402; // Integration ("shutter") time in milliseconds
         bool gain = 0; // Gain setting, 0 = X1, 1 = X16;
 
     private:

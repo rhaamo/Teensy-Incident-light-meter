@@ -1,9 +1,11 @@
 #include "LightMeter.h"
 
 /* TODO
+ * Switch to Adafruit TSL2561 lib
  * RGB handling of the encoder
  * User defined K-constant value
- * fStop user switcher
+ * fStop user range switcher
+ * user integration time choice [13ms, 101ms, 402ms]
  */
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
@@ -59,10 +61,12 @@ void loop() {
   myLightMeter.process();
 }
 
+// Boing boing
 void cfgPushButton(Bounce &bB) {
   bB.interval(15); // set to 15ms, default 10ms
 }
 
+// Constructor, do basic init here
 LightMeter::LightMeter(void) {
   // Setup Pushbuttons and encoder
   uiPbEnter.configureButton(cfgPushButton);
@@ -80,6 +84,7 @@ LightMeter::LightMeter(void) {
   loadConfigUser();
 }
 
+// Load user config, but first check if datas might be valid
 void LightMeter::loadConfigUser() {
   // Get marker stored in EEPROM
   String marker;
@@ -105,6 +110,7 @@ void LightMeter::saveConfigUser() {
   EEPROM.put(addrMarker, progName);
 }
 
+// Sleep time
 void LightMeter::powerDown() {
   // Last minute things
   saveConfigUser();
@@ -114,6 +120,7 @@ void LightMeter::powerDown() {
   digitalWrite(PIN_POWER_ON, LOW);
 }
 
+// Get and display calculated fStop or speed
 void LightMeter::getLuxAndCompute(bool fstop) {
   // Get the value
   double tempLux;
@@ -167,6 +174,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   }
 }
 
+// Get and display bare LUX value
 void LightMeter::getLux() {
   double tempLux;
   bool good;
@@ -209,12 +217,15 @@ void LightMeter::process(void) {
   uiPbDown.update();
   long curEncoderPos = uiEncoder.read();
 
+  // Do not update display for now
   bool drawDisplay = false;
 
   drawDisplay = oled.drawBatteryWidget();
 
-  // State handling
+  // Which state is next; Filled by one button action in the menu if any
   MState_t nextState = state;
+
+  // Handle current set state
   switch (state) {
     case Minit:
       // Initial state
@@ -467,12 +478,15 @@ void LightMeter::process(void) {
       break;
   }
 
+  // "Current state" now became the next one, will be processed on next loop
   state = nextState;
 
+  // Do we need to draw the display ?
   if (drawDisplay) {
     oled.display();
   }
 
+  // Handle the LUX calculation trigger
   holdState_t nextTriggerState = triggerState;
   switch (triggerState) {
     case hSRun:
