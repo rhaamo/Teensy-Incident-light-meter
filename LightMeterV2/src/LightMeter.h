@@ -42,7 +42,7 @@
  */
 #define KValue 12.5
 
-#define LIPO_CAPACITY 1000 // mAh
+#define LIPO_CAPACITY 2000 // mAh
 
 // Menu State
 enum MState_t {
@@ -135,6 +135,15 @@ class LightMeter {
         unsigned int  sensorMs = 402; // Integration ("shutter") time in milliseconds
         bool gain = 0; // Gain setting, 0 = X1, 1 = X16;
 
+        double luxAccumulator;
+        double lux;
+        uint32_t sampleCount;
+        uint8_t heartCount;
+
+        MState_t state;
+        holdState_t triggerState;
+        holdState_t nextTriggerState;
+
     private:
         void updateLux(double inputLux); // averaging function
         void loadConfigUser();
@@ -142,14 +151,7 @@ class LightMeter {
         void getLuxAndCompute(bool fstop);
         void getLux();
         uint32_t eeprom_crc(uint16_t position);
-
-        MState_t state;
-        holdState_t triggerState;
-        double luxAccumulator;
-        double lux;
-        uint32_t sampleCount;
-        uint8_t heartCount;
-
+        
         // Our Marker to validate EEPROM is valid
         const String progName = "LightMeter";
 	    int addrConfigUser = 0;      // Always save at position 0 in EEPROM

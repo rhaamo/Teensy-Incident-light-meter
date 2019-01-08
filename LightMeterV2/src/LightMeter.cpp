@@ -16,9 +16,94 @@ LightMeter myLightMeter;
 
 // User Inputs
 Encoder uiEncoder(8, 9);
-PushButton uiPbEnter = PushButton(4, ENABLE_INTERNAL_PULLUP);
-PushButton uiPbUp = PushButton(22, ENABLE_INTERNAL_PULLUP);
-PushButton uiPbDown = PushButton(23, ENABLE_INTERNAL_PULLUP);
+PushButton uiPbEnter = PushButton(4);
+PushButton uiPbUp = PushButton(22);
+PushButton uiPbDown = PushButton(23);
+
+// Boing boing
+void cfgPushButton(Bounce &bB) {
+  bB.interval(20); // set to 15ms, default 10ms
+}
+
+void onButtonReleased(Button& btn, uint16_t duration) {
+  Serial.println("button pressed");
+  // UP button
+  if (btn.is(uiPbUp)) {
+    Serial.println("UP button pressed");
+    if (myLightMeter.state == MDisplayPhotoValue) {
+      myLightMeter.state = MDisplayVideoValueInit;
+    } else if (myLightMeter.state == MDisplayVideoValue) {
+      myLightMeter.state = MSetISOInit;
+    } else if (myLightMeter.state == MSetISO) {
+      myLightMeter.state = MSystemInit;
+    } else if (myLightMeter.state == MSystem) {
+      myLightMeter.state = MSetISOInit;
+    } else if (myLightMeter.state == MDisplayLuxValue) {
+      myLightMeter.state = MMaryInit;
+    } else if (myLightMeter.state == MMary) {
+      // end of menu
+    }
+
+  // DOWN button
+  } else if (btn.is(uiPbDown)) {
+    Serial.println("DOWN button pressed");
+    if (myLightMeter.state == MDisplayVideoValue) {
+      myLightMeter.state = MDisplayPhotoValueInit;
+    } else if (myLightMeter.state == MSetISO) {
+      myLightMeter.state = MDisplayVideoValueInit;
+    } else if (myLightMeter.state == MSystem) {
+      myLightMeter.state = MDisplayLuxValueInit;
+    } else if (myLightMeter.state == MDisplayLuxValue) {
+      myLightMeter.state = MSystemInit;
+    } else if (myLightMeter.state == MMary) {
+      myLightMeter.state = MDisplayLuxValueInit;
+    }
+
+  // ENTER button
+  } else if (btn.is(uiPbEnter)) {
+    Serial.println("ENTER button pressed");
+    if (myLightMeter.state == MSystem) {
+      oled.clear(PAGE);
+      oled.setFontType(1);
+      oled.setCursor(6, 6);
+      oled.print("Power down.");
+      oled.display();
+      delay(1000);
+      myLightMeter.powerDown();
+      delay(4000);
+
+      oled.clear(PAGE);
+      oled.setCursor(6, 6);
+      oled.print("Failed !");
+      oled.display();
+      delay(1000);
+
+      oled.setFontType(0);
+      oled.clear(PAGE);
+      oled.display();
+      myLightMeter.state = MSystemInit;
+    } else if (myLightMeter.state == MMary) {
+      if (myLightMeter.heartCount < 7) {
+        oled.drawHeart(myLightMeter.heartCount * 18, 12);
+        myLightMeter.heartCount++;
+      }
+
+    // End of menu
+    // Trigger stats
+    } else if (myLightMeter.triggerState == hSRun) {
+      myLightMeter.nextTriggerState = hSAveraging;
+      myLightMeter.luxAccumulator = myLightMeter.lux;
+      myLightMeter.sampleCount = 1;
+    } else if (myLightMeter.triggerState == hSAveraging) {
+      myLightMeter.nextTriggerState = hSHeld;
+    } else if (myLightMeter.triggerState == hSHeld) {
+      myLightMeter.nextTriggerState = hSRun;
+      myLightMeter.luxAccumulator = 0;
+      myLightMeter.sampleCount = 0;
+    }
+  }
+
+}
 
 void setup() {
   // Assert power on pin
@@ -30,9 +115,11 @@ void setup() {
   if (!lipo.begin()) {
     // bad state happenings
     myLightMeter.lipoGood = false;
+    Serial.println("No battery or battery issue.");
   } else {
     myLightMeter.lipoGood = true;
     lipo.setCapacity(LIPO_CAPACITY);
+    Serial.println("Battery should be good.");
   }
 
   oled.begin();     // Initialize the OLED
@@ -54,25 +141,26 @@ void setup() {
   luxMeter.setTiming(myLightMeter.gain, myLightMeter.sensorTime, myLightMeter.sensorMs);
   Serial.println("Powerup...");
   luxMeter.setPowerUp();
-}
 
-void loop() {
-  delay(10); // wait 10ms
-  myLightMeter.process();
-}
-
-// Boing boing
-void cfgPushButton(Bounce &bB) {
-  bB.interval(15); // set to 15ms, default 10ms
-}
-
-// Constructor, do basic init here
-LightMeter::LightMeter(void) {
   // Setup Pushbuttons and encoder
   uiPbEnter.configureButton(cfgPushButton);
   uiPbUp.configureButton(cfgPushButton);
   uiPbDown.configureButton(cfgPushButton);
 
+  uiPbEnter.onRelease(onButtonReleased);
+  uiPbUp.onRelease(onButtonReleased);
+  uiPbDown.onRelease(onButtonReleased);
+}
+
+void loop() {
+  //Serial.println("in loop");
+  delay(10); // wait 10ms
+  myLightMeter.process();
+  //Serial.println("out loop");
+}
+
+// Constructor, do basic init here
+LightMeter::LightMeter(void) {
   // Defaults
   luxAccumulator = 0;
   sampleCount = 0;
@@ -211,6 +299,7 @@ void LightMeter::getLux() {
 }
 
 void LightMeter::process(void) {
+  //Serial.println("processing");
   // Update buttons states
   uiPbEnter.update();
   uiPbUp.update();
@@ -222,16 +311,13 @@ void LightMeter::process(void) {
 
   drawDisplay = oled.drawBatteryWidget();
 
-  // Which state is next; Filled by one button action in the menu if any
-  MState_t nextState = state;
-
   // Handle current set state
   switch (state) {
     case Minit:
       // Initial state
       oled.clear(PAGE);
       drawDisplay = true;
-      nextState = MDisplayPhotoValueInit;
+      state = MDisplayPhotoValueInit;
       break;
 
     case MDisplayPhotoValueInit:
@@ -239,7 +325,7 @@ void LightMeter::process(void) {
       drawDisplay = true;
       oled.clear(PAGE);
       oled.drawMenu("Photo", isoTable[ConfigUser.isoSetting], false, true);
-      nextState = MDisplayPhotoValue;
+      state = MDisplayPhotoValue;
       break;
 
     case MDisplayPhotoValue:
@@ -259,15 +345,10 @@ void LightMeter::process(void) {
           }
         }
       }
-      // Check UP pb state
-      if (uiPbUp.isPressed()) {
-        // Switch to Video mode
-        nextState = MDisplayVideoValueInit;
-      } else {
-        // Get measurements and display it
-        getLuxAndCompute(true); // T value
-        drawDisplay = true;
-      }
+     
+      // Get measurements and display it
+      getLuxAndCompute(true); // T value
+      drawDisplay = true;
 
       // Last, set new pos
       encoderPos = curEncoderPos;
@@ -277,7 +358,7 @@ void LightMeter::process(void) {
       drawDisplay = true;
       oled.clear(PAGE);
       oled.drawMenu("Video", isoTable[ConfigUser.isoSetting], true, true);
-      nextState = MDisplayVideoValue;
+      state = MDisplayVideoValue;
       break;
 
     case MDisplayVideoValue:
@@ -297,18 +378,10 @@ void LightMeter::process(void) {
           }
         }
       }
-      // Check DOWN pb state
-      if (uiPbDown.isPressed()) {
-        // Switch to Photo mode
-        nextState = MDisplayPhotoValueInit;
-      } else if (uiPbUp.isPressed()) {
-        // Switch to ISO Selection
-        nextState = MSetISOInit;
-      } else {
-        // Get measurements and display it
-        getLuxAndCompute(false); // N value
-        drawDisplay = true;
-      }
+
+      // Get measurements and display it
+      getLuxAndCompute(false); // N value
+      drawDisplay = true;
 
       // Last, set new pos
       encoderPos = curEncoderPos;
@@ -323,7 +396,7 @@ void LightMeter::process(void) {
       // Draw last value
       oled.drawISOScale(ConfigUser.isoSetting);
 
-      nextState = MSetISO;
+      state = MSetISO;
       break;
 
     case MSetISO:
@@ -353,13 +426,6 @@ void LightMeter::process(void) {
         saveConfigUser();
       }
 
-      // Check DOWN pb state
-      if (uiPbDown.isPressed()) {
-        nextState = MDisplayVideoValueInit;
-      }
-      if (uiPbUp.isPressed()) {
-        nextState = MSystemInit;
-      }
       break;
 
     case MSystemInit:
@@ -376,7 +442,7 @@ void LightMeter::process(void) {
       oled.print((float)lipo.soc(), 0);
       oled.print("%");
 
-      nextState = MSystem;
+      state = MSystem;
       break;
 
     case MSystem:
@@ -398,34 +464,10 @@ void LightMeter::process(void) {
       oled.setCursor(64, 11);
       oled.print((float)lipo.voltage() / LIPO_CAPACITY, 2);
 
-      if (uiPbEnter.isPressed()) {
-        oled.clear(PAGE);
-        oled.setFontType(1);
-        oled.setCursor(6, 6);
-        oled.print("Power down.");
-        oled.display();
-        delay(1000);
-        powerDown();
-        delay(4000);
-
-        oled.clear(PAGE);
-        oled.setCursor(6, 6);
-        oled.print("Failed !");
-        oled.display();
-        delay(1000);
-
-        oled.setFontType(0);
-        oled.clear(PAGE);
-        oled.display();
-        nextState = MSystemInit;
-      }
+      // Shutdown is handled in button callback
+      
       drawDisplay = true;
-      if (uiPbDown.isPressed()) {
-        nextState = MSetISOInit;
-      }
-      if (uiPbUp.isPressed()) {
-        nextState = MDisplayLuxValueInit;
-      }
+
       break;
 
     case MDisplayLuxValueInit:
@@ -433,16 +475,10 @@ void LightMeter::process(void) {
       oled.clear(PAGE);
 
       oled.drawMenu("Lux", false, false);
-      nextState = MDisplayLuxValue;
+      state = MDisplayLuxValue;
       break;
 
     case MDisplayLuxValue:
-      if (uiPbDown.isPressed()) {
-        nextState = MSystemInit;
-      }
-      if (uiPbUp.isPressed()) {
-        nextState = MMaryInit;
-      }
       getLux();
       break;
 
@@ -452,25 +488,12 @@ void LightMeter::process(void) {
 
       oled.drawMenu("Mary", true, false);
       heartCount = 0;
-      nextState = MMary;
+      state = MMary;
       break;
 
     case MMary:
-      if (uiPbEnter.isPressed()) {
-        if (heartCount < 7) {
-          oled.drawHeart(heartCount * 18, 12);
-          drawDisplay = true;
-          heartCount++;
-        }
-      }
-
-      // Draw new value
-      if (uiPbDown.isPressed()) {
-        nextState = MDisplayLuxValueInit;
-      }
-      if (uiPbUp.isPressed()) {
-        // nextState = ;
-      }
+      drawDisplay = true; // might need special handling since it was handled
+      // by if(enter pressed) if (hC < 7)
       break;
 
     case MFStopRangeInit:
@@ -481,12 +504,9 @@ void LightMeter::process(void) {
     case MIntegrationTime:
 
     default:
-      nextState = Minit;
+      state = Minit;
       break;
   }
-
-  // "Current state" now became the next one, will be processed on next loop
-  state = nextState;
 
   // Do we need to draw the display ?
   if (drawDisplay) {
@@ -494,29 +514,18 @@ void LightMeter::process(void) {
   }
 
   // Handle the LUX calculation trigger
-  holdState_t nextTriggerState = triggerState;
+  nextTriggerState = triggerState;
   switch (triggerState) {
     case hSRun:
-      // Can't be running, if button pressed move on
-      if (uiPbEnter.isPressed()) {
-        nextTriggerState = hSAveraging;
-        luxAccumulator = lux;
-        sampleCount = 1;
-      }
+      // handled in onButtonReleased
       break;
     
     case hSAveraging:
-      if (uiPbEnter.isPressed()) {
-        nextTriggerState = hSHeld;
-      }
+      // handled in onButtonReleased
       break;
 
     case hSHeld:
-      if (uiPbEnter.isPressed()) {
-        nextTriggerState = hSRun;
-        luxAccumulator = 0;
-        sampleCount = 0;
-      }
+      // handled in onButtonReleased
       break;
 
     default:
