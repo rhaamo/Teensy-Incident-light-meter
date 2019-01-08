@@ -54,3 +54,4 @@ Case is cut ad-hoc.
  * Use libraries:
   * https://github.com/XenGi/teensy.pretty
   * https://github.com/XenGi/teensy_library
+  * RGB Encoder Footprint and Library from https://github.com/sparkfun/Rotary_Encoder_Breakout-Illuminated
