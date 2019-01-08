@@ -1,6 +1,0 @@
-{
-    "terminal.integrated.env.linux": {
-        "PATH": "/home/dashie/.platformio/penv/bin:/home/dashie/.platformio/penv:/home/dashie/.pyenv/shims:/home/dashie/.pyenv/bin:/home/dashie/.rbenv/bin:/home/dashie/.tfenv/bin:/home/dashie/hack/rtl-sdr/tetra-listener/osmo-tetra/src:/home/dashie/hack/rtl-sdr/tetrapol-kit/build/apps:/home/dashie/.local/bin:/Library/TeX/texbin:/opt/telegram:/home/dashie/bin/Linux:/home/dashie/bin:/home/dashie/perl5/bin:/home/dashie/dev/derp/pathbin:/home/dashie/dev/z88dk/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/go/bin:/home/dashie/dev/go/bin:/home/dashie/dev/go/bin:/usr/local/texlive/2016/bin/x86_64-linux:/home/dashie/altera/13.0sp1//quartus/bin:/home/dashie/altera/13.0sp1//nios2eds/bin:",
-        "PLATFORMIO_CALLER": "vscode"
-    }
-}
