@@ -91,13 +91,13 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     // End of menu
     // Trigger stats
     } else if (myLightMeter.triggerState == hSRun) {
-      myLightMeter.nextTriggerState = hSAveraging;
+      myLightMeter.triggerState = hSAveraging;
       myLightMeter.luxAccumulator = myLightMeter.lux;
       myLightMeter.sampleCount = 1;
     } else if (myLightMeter.triggerState == hSAveraging) {
-      myLightMeter.nextTriggerState = hSHeld;
+      myLightMeter.triggerState = hSHeld;
     } else if (myLightMeter.triggerState == hSHeld) {
-      myLightMeter.nextTriggerState = hSRun;
+      myLightMeter.triggerState = hSRun;
       myLightMeter.luxAccumulator = 0;
       myLightMeter.sampleCount = 0;
     }
@@ -514,7 +514,6 @@ void LightMeter::process(void) {
   }
 
   // Handle the LUX calculation trigger
-  nextTriggerState = triggerState;
   switch (triggerState) {
     case hSRun:
       // handled in onButtonReleased
@@ -532,10 +531,9 @@ void LightMeter::process(void) {
       luxAccumulator = 0;
       sampleCount = 0;
       lux = 0;
-      nextTriggerState = hSRun;
+      triggerState = hSRun;
       break;
   }
-  triggerState = nextTriggerState;
 }
 
 void LightMeter::updateLux(double inputLux) {

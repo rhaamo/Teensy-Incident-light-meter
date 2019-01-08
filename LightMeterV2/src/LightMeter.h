@@ -142,7 +142,6 @@ class LightMeter {
 
         MState_t state;
         holdState_t triggerState;
-        holdState_t nextTriggerState;
 
     private:
         void updateLux(double inputLux); // averaging function
