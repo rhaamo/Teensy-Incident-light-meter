@@ -49,3 +49,8 @@ Case is cut ad-hoc.
 <img src="https://raw.githubusercontent.com/marshalltaylorSFE/Teensy-Incident-light-meter/master/innards.jpg" alt="Innards" width="40%" height="40%">
 
 *An assembly*
+
+### PCB
+ * Use libraries:
+  * https://github.com/XenGi/teensy.pretty
+  * https://github.com/XenGi/teensy_library

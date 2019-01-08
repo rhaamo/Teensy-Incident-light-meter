@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name SparkFun_Rotary_Encoder-Illuminated)(type KiCad)(uri ${KIPRJMOD}/SparkFun_Rotary_Encoder-Illuminated.pretty)(options "")(descr ""))
+)
