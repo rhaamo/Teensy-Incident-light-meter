@@ -271,6 +271,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 
 // Get and display bare LUX value
 void LightMeter::getLux() {
+  Serial.println("get lux");
   double tempLux;
   bool good;
   unsigned int data0, data1;
@@ -284,10 +285,12 @@ void LightMeter::getLux() {
   updateLux(tempLux);
 
   oled.setCursor(0, 11);
+  oled.print("d0: ");
   oled.print(data0);
   oled.print("   ");
-  
+
   oled.setCursor(64, 11);
+  oled.print("d1: ");
   oled.print(data1);
   oled.print("   ");
 
@@ -489,6 +492,7 @@ void LightMeter::process(void) {
 
     case MDisplayLuxValue:
       getLux();
+      drawDisplay = true;
       break;
 
     case MMaryInit:
