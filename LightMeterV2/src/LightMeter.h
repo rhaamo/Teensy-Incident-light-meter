@@ -31,6 +31,8 @@
 #define PIN_SCK 14  // SCK
 #define PIN_MOSI 7  // MOSI
 
+#define ROT_ENC_DETENTS_COUNTS 3 // Encoder produce 4 counts per detent
+                                 // But using 3 produce the best result...
 
 #define PIN_POWER_ON 16
 
@@ -104,6 +106,7 @@ const float fStopTableMto[1] = {10.5};
 const float fStopTableWarra[1] = {11};
 const float fStopTableFuji[11] = {1.4, 1.9, 2, 2.8, 3.8, 4, 5.6, 8, 11, 16, 22};
 // Default table
+#define FSTOP_COUNT 27
 const float fStopTable[27] = {1.4, 1.8, 1.9, 2, 2.2, 2.5, 2.8,
 							  3.2, 3.5, 3.8, 4, 4.5, 5, 5.6,
 							  6.3, 7.1, 8, 9, 10.5, 10, 11, 13,
@@ -157,7 +160,7 @@ class LightMeter {
         uint32_t addrMarker = 2000;       // Store marker at 2000 bytes in EEPROM
 
         // Static init of the encoder value
-        long encoderPos = -999;
+        long lastEncoderPos = -999;
 
         CfgUser ConfigUser;
 };

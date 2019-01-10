@@ -15,7 +15,7 @@ SFE_TSL2561 luxMeter;
 LightMeter myLightMeter;
 
 // User Inputs
-Encoder uiEncoder(8, 9);
+Encoder uiEncoder(9, 8);
 PushButton uiPbEnter = PushButton(4);
 PushButton uiPbUp = PushButton(22);
 PushButton uiPbDown = PushButton(23);
@@ -25,11 +25,33 @@ void cfgPushButton(Bounce &bB) {
   bB.interval(20); // set to 15ms, default 10ms
 }
 
+/*
+ * Menu order:
+ * Photo -> Video -> SetISO -> System -> DisplayLux ->
+ *  Mary -> StopRange -> Calibration -> IntegrationTime
+ * 
+ * Button down = next menu, up = previous menu
+ */
 void onButtonReleased(Button& btn, uint16_t duration) {
   Serial.println("button pressed");
   // UP button
   if (btn.is(uiPbUp)) {
-    Serial.println("UP button pressed");
+    if (myLightMeter.state == MDisplayPhotoValue) {
+      // top of menu
+    } else if (myLightMeter.state == MDisplayVideoValue) {
+      myLightMeter.state = MDisplayPhotoValueInit;
+    } else if (myLightMeter.state == MSetISO) {
+      myLightMeter.state = MDisplayVideoValueInit;
+    } else if (myLightMeter.state == MSystem) {
+      myLightMeter.state = MSetISOInit;
+    } else if (myLightMeter.state == MDisplayLuxValue) {
+      myLightMeter.state = MSystemInit;
+    } else if (myLightMeter.state == MMary) {
+      myLightMeter.state = MDisplayLuxValueInit;
+    }
+
+  // DOWN button
+  } else if (btn.is(uiPbDown)) {
     if (myLightMeter.state == MDisplayPhotoValue) {
       myLightMeter.state = MDisplayVideoValueInit;
     } else if (myLightMeter.state == MDisplayVideoValue) {
@@ -37,26 +59,11 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     } else if (myLightMeter.state == MSetISO) {
       myLightMeter.state = MSystemInit;
     } else if (myLightMeter.state == MSystem) {
-      myLightMeter.state = MSetISOInit;
+      myLightMeter.state = MDisplayLuxValueInit;
     } else if (myLightMeter.state == MDisplayLuxValue) {
       myLightMeter.state = MMaryInit;
     } else if (myLightMeter.state == MMary) {
-      // end of menu
-    }
-
-  // DOWN button
-  } else if (btn.is(uiPbDown)) {
-    Serial.println("DOWN button pressed");
-    if (myLightMeter.state == MDisplayVideoValue) {
-      myLightMeter.state = MDisplayPhotoValueInit;
-    } else if (myLightMeter.state == MSetISO) {
-      myLightMeter.state = MDisplayVideoValueInit;
-    } else if (myLightMeter.state == MSystem) {
-      myLightMeter.state = MDisplayLuxValueInit;
-    } else if (myLightMeter.state == MDisplayLuxValue) {
-      myLightMeter.state = MSystemInit;
-    } else if (myLightMeter.state == MMary) {
-      myLightMeter.state = MDisplayLuxValueInit;
+      // bottom of menu
     }
 
   // ENTER button
@@ -331,16 +338,16 @@ void LightMeter::process(void) {
     case MDisplayPhotoValue:
       // Photo light metering
       // Did the encoder move ?
-      if (curEncoderPos != encoderPos) {
+      if (curEncoderPos != lastEncoderPos) {
         // yes
-        if (curEncoderPos < encoderPos) {
+        if (curEncoderPos <= lastEncoderPos-ROT_ENC_DETENTS_COUNTS) {
           // moved down
           if (ConfigUser.fStopSetting > 0) {
             ConfigUser.fStopSetting--;
           }
-        } else if (curEncoderPos > encoderPos) {
+        } else if (curEncoderPos >= lastEncoderPos+ROT_ENC_DETENTS_COUNTS) {
           // moved up
-          if (ConfigUser.fStopSetting < 23) {
+          if (ConfigUser.fStopSetting < FSTOP_COUNT-1) {
             ConfigUser.fStopSetting++;
           }
         }
@@ -350,8 +357,6 @@ void LightMeter::process(void) {
       getLuxAndCompute(true); // T value
       drawDisplay = true;
 
-      // Last, set new pos
-      encoderPos = curEncoderPos;
       break;
 
     case MDisplayVideoValueInit:
@@ -364,14 +369,14 @@ void LightMeter::process(void) {
     case MDisplayVideoValue:
       // Video light metering
       // Did the encoder move ?
-      if (curEncoderPos != encoderPos) {
+      if (curEncoderPos != lastEncoderPos) {
         // yes
-        if (curEncoderPos < encoderPos) {
+        if (curEncoderPos <= lastEncoderPos-ROT_ENC_DETENTS_COUNTS) {
           // moved down
           if (ConfigUser.exposureSetting > 0) {
             ConfigUser.exposureSetting--;
           }
-        } else if (curEncoderPos > encoderPos) {
+        } else if (curEncoderPos >= lastEncoderPos+ROT_ENC_DETENTS_COUNTS) {
           // moved up
           if (ConfigUser.exposureSetting < 2) {
             ConfigUser.exposureSetting++;
@@ -383,8 +388,6 @@ void LightMeter::process(void) {
       getLuxAndCompute(false); // N value
       drawDisplay = true;
 
-      // Last, set new pos
-      encoderPos = curEncoderPos;
       break;
 
     case MSetISOInit:
@@ -402,20 +405,26 @@ void LightMeter::process(void) {
     case MSetISO:
       // ISO Selection
       // Did the encoder move ?
-      if (curEncoderPos != encoderPos) {
+      if (curEncoderPos != lastEncoderPos) {
         // yes
         drawDisplay = true;
         oled.setCursor(0, 11);
         oled.print("      ");
 
-        if (curEncoderPos < encoderPos) {
+        if (curEncoderPos <= lastEncoderPos-ROT_ENC_DETENTS_COUNTS) {
           // moved down
           if (ConfigUser.isoSetting > 0) {
+            Serial.println("ISO--");
+            Serial.println(ConfigUser.isoSetting);
+            Serial.println(isoTable[ConfigUser.isoSetting]);
             ConfigUser.isoSetting--;
           }
-        } else if (curEncoderPos > encoderPos) {
+        } else if (curEncoderPos >= lastEncoderPos+ROT_ENC_DETENTS_COUNTS) {
           // moved up
-          if (ConfigUser.isoSetting < isoTableSize) {
+          if (ConfigUser.isoSetting < isoTableSize-1) {
+            Serial.println("ISO++");
+            Serial.println(ConfigUser.isoSetting);
+            Serial.println(isoTable[ConfigUser.isoSetting]);
             ConfigUser.isoSetting++;
           }
         }
@@ -511,6 +520,11 @@ void LightMeter::process(void) {
   // Do we need to draw the display ?
   if (drawDisplay) {
     oled.display();
+  }
+
+  if (curEncoderPos != lastEncoderPos) {
+    // Encoder moved, set new position
+    lastEncoderPos = curEncoderPos;
   }
 
   // Handle the LUX calculation trigger
