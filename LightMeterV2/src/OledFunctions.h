@@ -214,20 +214,25 @@ public:
     setCursor(xIn, yIn + 4);
     print("F");
     setFontType(1);
-    uint16_t whole = (uint16_t)fNumIn;
-    float partial = (fNumIn - whole);
+    uint16_t whole = (uint16_t)fNumIn; // f. xx
+    float partial = (fNumIn - whole);  // f.   .yy
     if (partial > 0) {
-      // Print 1 dec
+      // If f. is xx.yy
+      uint8_t offset = 0;
+      if (whole >= 10) {
+        offset = 10; // two chars
+      }
+
       setCursor(xIn + 8, yIn);
       print(whole);
-      setCursor(xIn + 18, yIn);
+      setCursor(xIn + 18 + offset, yIn);
       print(partial * 10, 0);
-      pixel(xIn + 15, yIn + 10, WHITE, NORM);
-      pixel(xIn + 15, yIn + 11, WHITE, NORM);
-      pixel(xIn + 16, yIn + 10, WHITE, NORM);
-      pixel(xIn + 16, yIn + 11, WHITE, NORM);
+      pixel(xIn + 15 + offset, yIn + 9, WHITE, NORM);
+      pixel(xIn + 15 + offset, yIn + 10, WHITE, NORM);
+      pixel(xIn + 16 + offset, yIn + 9, WHITE, NORM);
+      pixel(xIn + 16 + offset, yIn + 10, WHITE, NORM);
     } else {
-      // Print whole
+      // f. is xx
       setCursor(xIn + 8, yIn);
       print(whole);
     }

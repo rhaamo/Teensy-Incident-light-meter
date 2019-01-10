@@ -245,7 +245,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
     value = sqrt((exposureTable[ConfigUser.exposureSetting] * lux * isoTable[ConfigUser.isoSetting]) / KValue);
   }
   oled.eraseLowerArea();
-  oled.drawLeftBracket(32, 10);
+  oled.drawLeftBracket(37, 10);
   oled.drawRightBracket(122, 10);
   if (fstop) {
     oled.drawFNumStyle1(fStopTable[ConfigUser.fStopSetting], 2, 13);
@@ -378,7 +378,7 @@ void LightMeter::process(void) {
           }
         } else if (curEncoderPos >= lastEncoderPos+ROT_ENC_DETENTS_COUNTS) {
           // moved up
-          if (ConfigUser.exposureSetting < 2) {
+          if (ConfigUser.exposureSetting < EXPOSURE_COUNT-1) {
             ConfigUser.exposureSetting++;
           }
         }
