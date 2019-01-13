@@ -79,6 +79,7 @@ void onButtonReleased(Button& btn, uint16_t duration) {
       myLightMeter.powerDown();
       delay(4000);
 
+      myLightMeter.ledStatus(LED_KO);
       oled.clear(PAGE);
       oled.setCursor(6, 6);
       oled.print("Failed !");

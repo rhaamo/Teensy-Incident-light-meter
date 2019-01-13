@@ -138,6 +138,7 @@ class LightMeter {
         LightMeter(void);
         void process();
         void powerDown(void);
+        void ledStatus(int state);
 
         bool lipoGood;
         unsigned char sensorID;
@@ -160,7 +161,6 @@ class LightMeter {
         void getLuxAndCompute(bool fstop);
         void getLux();
         void blinkLed();
-        void ledStatus(int state);
         uint32_t eeprom_crc(uint16_t position);
         
         // Our Marker to validate EEPROM is valid
