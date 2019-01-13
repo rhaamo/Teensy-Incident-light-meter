@@ -118,6 +118,12 @@ void setup() {
   digitalWrite(PIN_POWER_ON, HIGH);
   Serial.begin(115200);
 
+  // Leds output, off by default
+  pinMode(PIN_LED_OK, OUTPUT);
+  digitalWrite(PIN_LED_OK, LOW);
+  pinMode(PIN_LED_KO, OUTPUT);
+  digitalWrite(PIN_LED_KO, LOW);
+
   // begin() will return true if communication is successful
   if (!lipo.begin()) {
     // bad state happenings
@@ -308,6 +314,37 @@ void LightMeter::getLux() {
   }
 }
 
+void LightMeter::blinkLed(void) {
+  // Blink led if needed
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - ledOkPrevMillis >= ledOkInterval) {
+    ledOkPrevMillis = currentMillis;
+
+    if (ledOkState == LOW) {
+      ledOkState = HIGH;
+    } else {
+      ledOkState = LOW;
+    }
+
+    digitalWrite(PIN_LED_OK, ledOkState);
+  }
+
+  if (currentMillis - ledKoPrevMillis >= ledKoInterval) {
+    ledKoPrevMillis = currentMillis;
+
+    if (ledOkState == LOW) {
+      ledKoState = HIGH;
+    } else {
+      ledKoState = LOW;
+    }
+
+    digitalWrite(PIN_LED_KO, ledKoState);
+  }
+
+}
+
 void LightMeter::process(void) {
   //Serial.println("processing");
   // Update buttons states
@@ -315,6 +352,8 @@ void LightMeter::process(void) {
   uiPbUp.update();
   uiPbDown.update();
   long curEncoderPos = uiEncoder.read();
+
+  blinkLed();
 
   // Do not update display for now
   bool drawDisplay = false;

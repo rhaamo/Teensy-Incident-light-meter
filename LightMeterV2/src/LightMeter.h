@@ -46,6 +46,10 @@
 
 #define LIPO_CAPACITY 2000 // mAh
 
+// Rotary encoder GREEN / RED LED
+#define PIN_LED_OK 11
+#define PIN_LED_KO 10
+
 // Menu State
 enum MState_t {
     Minit,                  // Initial state page
@@ -152,6 +156,7 @@ class LightMeter {
         void saveConfigUser();
         void getLuxAndCompute(bool fstop);
         void getLux();
+        void blinkLed();
         uint32_t eeprom_crc(uint16_t position);
         
         // Our Marker to validate EEPROM is valid
@@ -161,6 +166,14 @@ class LightMeter {
 
         // Static init of the encoder value
         long lastEncoderPos = -999;
+
+        // Leds
+        int ledOkState = LOW;
+        int ledKoState = LOW;
+        unsigned long ledOkPrevMillis = 0;
+        unsigned long ledKoPrevMillis = 0;
+        const unsigned long ledOkInterval = 1000; // ms
+        const unsigned long ledKoInterval = 1000; // ms
 
         CfgUser ConfigUser;
 };
