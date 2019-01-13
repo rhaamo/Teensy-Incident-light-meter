@@ -157,6 +157,7 @@ class LightMeter {
         void getLuxAndCompute(bool fstop);
         void getLux();
         void blinkLed();
+        void ledStatus(int state);
         uint32_t eeprom_crc(uint16_t position);
         
         // Our Marker to validate EEPROM is valid
@@ -172,8 +173,12 @@ class LightMeter {
         int ledKoState = LOW;
         unsigned long ledOkPrevMillis = 0;
         unsigned long ledKoPrevMillis = 0;
+        unsigned long ledOkRuntime = 0;
+        unsigned long ledKoRuntime = 0;
         const unsigned long ledOkInterval = 1000; // ms
         const unsigned long ledKoInterval = 1000; // ms
+        const unsigned long ledOkDuration = 3000; // ms
+        const unsigned long ledKoDuration = 3000; // ms
 
         CfgUser ConfigUser;
 };

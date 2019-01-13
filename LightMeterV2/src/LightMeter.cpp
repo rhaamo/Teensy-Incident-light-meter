@@ -221,6 +221,20 @@ void LightMeter::powerDown() {
   digitalWrite(PIN_POWER_ON, LOW);
 }
 
+// state 0 OK, state 1 KO
+void LightMeter::ledStatus(int state) {
+  // Set state HIGH / LOW and reset runtime counter
+  if (state == 0) {
+    ledKoState = LOW;
+    ledOkState = HIGH;
+    ledOkRuntime = 0;
+  } else {
+    ledKoState = HIGH;
+    ledOkState = LOW;
+    ledKoRuntime = 0;
+  }
+}
+
 // Get and display calculated fStop or speed
 void LightMeter::getLuxAndCompute(bool fstop) {
   // Get the value
@@ -314,12 +328,20 @@ void LightMeter::getLux() {
   }
 }
 
+// TODO: handle duration
 void LightMeter::blinkLed(void) {
   // Blink led if needed
 
   unsigned long currentMillis = millis();
 
-  if (currentMillis - ledOkPrevMillis >= ledOkInterval) {
+  if (ledOkRuntime >= ledOkDuration) {
+    // Switch off led
+    ledOkState = LOW;
+    digitalWrite(PIN_LED_OK, ledOkState);
+    // Reset counter
+    ledOkRuntime = 0;
+  } else if (currentMillis - ledOkPrevMillis >= ledOkInterval) {
+    // Change state
     ledOkPrevMillis = currentMillis;
 
     if (ledOkState == LOW) {
@@ -329,9 +351,18 @@ void LightMeter::blinkLed(void) {
     }
 
     digitalWrite(PIN_LED_OK, ledOkState);
+    // Add current count to led counter
+    ledOkRuntime += (currentMillis - ledOkPrevMillis);
   }
 
-  if (currentMillis - ledKoPrevMillis >= ledKoInterval) {
+  if (ledKoRuntime >= ledKoDuration) {
+    // Switch off led
+    ledKoState = LOW;
+    digitalWrite(PIN_LED_KO, ledKoState);
+    // Reset counter
+    ledKoRuntime = 0;
+  } else if (currentMillis - ledKoPrevMillis >= ledKoInterval) {
+    // Change state
     ledKoPrevMillis = currentMillis;
 
     if (ledOkState == LOW) {
@@ -341,6 +372,8 @@ void LightMeter::blinkLed(void) {
     }
 
     digitalWrite(PIN_LED_KO, ledKoState);
+    // Add current count to led counter
+    ledKoRuntime += (currentMillis - ledKoPrevMillis);
   }
 
 }
