@@ -205,10 +205,12 @@ void LightMeter::saveConfigUser() {
   // 2000 for a teensy 3.2, 1000 for a 2.0, 4000 for a >= 3.5
   if (sizeof(ConfigUser) >= addrMarker) {
     Serial.println("sizeof(ConfigUser) >= 2000 !!!");
+    ledStatus(LED_KO);
     return;
   }
 	EEPROM.put(addrConfigUser, ConfigUser);
   EEPROM.put(addrMarker, progName);
+  ledStatus(LED_OK);
 }
 
 // Sleep time
@@ -244,6 +246,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   unsigned int data0, data1;
   // Get values
   if (!luxMeter.getData(data0, data1)) {
+    ledStatus(LED_KO);
     return;
   }
 
@@ -276,6 +279,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   }
   if (!good) {
     oled.drawNo(33, 12);
+    ledStatus(LED_KO);
   }
   if (triggerState == hSHeld) {
     oled.holdStyle1(100, 10);
@@ -298,6 +302,7 @@ void LightMeter::getLux() {
   if (!luxMeter.getData(data0, data1)) {
     oled.setCursor(0, 11);
     oled.print("ERROR");
+    ledStatus(LED_KO);
     return;
   }
 
@@ -325,6 +330,7 @@ void LightMeter::getLux() {
     oled.print("  ");
   } else {
     oled.drawNo(120, 20);
+    ledStatus(LED_KO);
   }
 }
 

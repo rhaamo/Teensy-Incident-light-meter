@@ -122,6 +122,9 @@ const float exposureTable[EXPOSURE_COUNT] = {0.041666666, 0.033333333, 0.0166666
 uint8_t isoTableSize = ISO_COUNT;
 const float isoTable[ISO_COUNT] = {25, 100, 125, 200, 400, 800, 1600, 3200, 6400};
 
+#define LED_OK 0
+#define LED_KO 1
+
 // EEprom user config
 struct CfgUser {
 	FS_table fStops;             // Unused for now
@@ -177,8 +180,8 @@ class LightMeter {
         unsigned long ledKoRuntime = 0;
         const unsigned long ledOkInterval = 1000; // ms
         const unsigned long ledKoInterval = 1000; // ms
-        const unsigned long ledOkDuration = 3000; // ms
-        const unsigned long ledKoDuration = 3000; // ms
+        const unsigned long ledOkDuration = 2000; // ms
+        const unsigned long ledKoDuration = 2000; // ms
 
         CfgUser ConfigUser;
 };
