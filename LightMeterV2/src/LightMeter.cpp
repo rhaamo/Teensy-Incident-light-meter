@@ -10,8 +10,6 @@
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
-SFE_TSL2561 luxMeter;
-
 LightMeter myLightMeter;
 
 // User Inputs
@@ -99,15 +97,9 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     // End of menu
     // Trigger stats
     } else if (myLightMeter.triggerState == hSRun) {
-      myLightMeter.triggerState = hSAveraging;
-      myLightMeter.luxAccumulator = myLightMeter.lux;
-      myLightMeter.sampleCount = 1;
-    } else if (myLightMeter.triggerState == hSAveraging) {
       myLightMeter.triggerState = hSHeld;
     } else if (myLightMeter.triggerState == hSHeld) {
       myLightMeter.triggerState = hSRun;
-      myLightMeter.luxAccumulator = 0;
-      myLightMeter.sampleCount = 0;
     }
   }
 
@@ -142,20 +134,6 @@ void setup() {
   delay(1200);      // Delay 1200 ms
   oled.clear(PAGE); // Clear the buffer.
 
-  luxMeter.begin();
-
-  if (luxMeter.getID(myLightMeter.sensorID)) {
-    Serial.print("Got factory ID: 0x");
-    Serial.print(myLightMeter.sensorID, HEX);
-    Serial.println(", should be 0x5_");
-  } else {
-    Serial.println("ERR: Cannot get sensor ID");
-  }
-  Serial.println("Set timing...");
-  luxMeter.setTiming(myLightMeter.gain, myLightMeter.sensorTime, myLightMeter.sensorMs);
-  Serial.println("Powerup...");
-  luxMeter.setPowerUp();
-
   // Setup Pushbuttons and encoder
   uiPbEnter.configureButton(cfgPushButton);
   uiPbUp.configureButton(cfgPushButton);
@@ -176,8 +154,6 @@ void loop() {
 // Constructor, do basic init here
 LightMeter::LightMeter(void) {
   // Defaults
-  luxAccumulator = 0;
-  sampleCount = 0;
   lux = 0;
   lipoGood = false;
   triggerState = hSRun;
@@ -239,18 +215,48 @@ void LightMeter::ledStatus(int state) {
   }
 }
 
+float LightMeter::getRawLux() {
+  Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
+
+  sensor_t sensor;
+  luxMeter.getSensor(&sensor);
+
+  if (needHigh) {
+    luxMeter.setGain(TSL2591_GAIN_HIGH);
+  } else {
+    luxMeter.setGain(TSL2591_GAIN_LOW);
+  }
+  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+
+  luxMeter.begin();
+
+  sensors_event_t event;
+  luxMeter.getEvent(&event);
+  float tempLux = event.light;
+  if ((event.light == 0) |            // When sensor get saturated (normally in transition between gain)
+      (event.light > 4294966000.0) |  // Lux value is restored to 201 for an effective change in Gain (from 428x to 1x)
+      (event.light <-4294966000.0))   // Overflow is displayed indicating that this value is not correct
+      {
+        tempLux = 201;
+        overflow = 1;
+      } else {
+        overflow = 0;
+      }
+
+  tempLux = tempLux * DomeMultiplier;      // DomeMultiplier = 2.17 (calibration)
+  if (tempLux < 40) {needHigh = 1;}        // ~ 1 +1/3 OFFSET (*0.26 in lux calibration)
+  if (tempLux > 200) {needHigh = 0;}       // Turns off High hain
+  if (needHigh) {tempLux = tempLux*.26;}   // OFFSET corrected
+
+  updateLux(tempLux);
+
+  return lux;
+}
+
 // Get and display calculated fStop or speed
 void LightMeter::getLuxAndCompute(bool fstop) {
-  // Get the value
-  double tempLux;
-  bool good;
+  (void)getRawLux();
   float value;
-  unsigned int data0, data1;
-  // Get values
-  if (!luxMeter.getData(data0, data1)) {
-    ledStatus(LED_KO);
-    return;
-  }
 
   /*
    * exposure time = stop squared * K / ( ISO * Lux )
@@ -259,9 +265,6 @@ void LightMeter::getLuxAndCompute(bool fstop) {
    * shut       K cal
    */
 
-  // Returns true if sensor is not saturated
-  good = luxMeter.getLux(gain, sensorMs, data0, data1, tempLux);
-  updateLux(tempLux);
   if (fstop) {
     // T value; Shutter time, in seconds
     value = pow(fStopTable[ConfigUser.fStopSetting], 2) * KValue / (lux * (isoTable[ConfigUser.isoSetting]));
@@ -279,15 +282,12 @@ void LightMeter::getLuxAndCompute(bool fstop) {
     oled.drawExposureStyle2(exposureTable[ConfigUser.exposureSetting], 2, 13);
     oled.drawFNumStyle2(value, 60, 14);
   }
-  if (!good) {
+  if (overflow) {
     oled.drawNo(33, 12);
     ledStatus(LED_KO);
   }
   if (triggerState == hSHeld) {
     oled.holdStyle1(100, 10);
-  }
-  if (triggerState == hSAveraging) {
-    oled.aveStyle1(100, 10);
   }
   if (fstop) {
     oled.setCursor(111, 17);
@@ -298,27 +298,40 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 // Get and display bare LUX value
 void LightMeter::getLux() {
   Serial.println("get lux");
-  double tempLux;
-  bool good;
-  unsigned int data0, data1;
-  if (!luxMeter.getData(data0, data1)) {
-    oled.setCursor(0, 11);
-    oled.print("ERROR");
-    ledStatus(LED_KO);
-    return;
-  }
+  (void)getRawLux();
 
-  good = luxMeter.getLux(gain, sensorMs, data0, data1, tempLux);
-  updateLux(tempLux);
+  // From getRawLux()
+  Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
+
+  sensor_t sensor;
+  luxMeter.getSensor(&sensor);
+
+  if (needHigh) {
+    luxMeter.setGain(TSL2591_GAIN_HIGH);
+  } else {
+    luxMeter.setGain(TSL2591_GAIN_LOW);
+  }
+  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+
+  luxMeter.begin();
+  // END
+
+  // From Adafruit
+  uint16_t ir, full;
+  uint32_t lum = luxMeter.getFullLuminosity();
+  lum = luxMeter.getFullLuminosity();
+  ir = lum >> 16;
+  full = lum & 0xFFFF;
+  // END
 
   oled.setCursor(0, 11);
-  oled.print("d0: ");
-  oled.print(data0);
+  oled.print("ir: ");
+  oled.print(ir);
   oled.print("   ");
 
   oled.setCursor(64, 11);
-  oled.print("d1: ");
-  oled.print(data1);
+  oled.print("full: ");
+  oled.print(full);
   oled.print("   ");
 
   // Print out the result
@@ -328,7 +341,7 @@ void LightMeter::getLux() {
   oled.print("   ");
   
   oled.setCursor(116, 20);
-  if (good) {
+  if (!overflow) {
     oled.print("  ");
   } else {
     oled.drawNo(120, 20);
@@ -618,17 +631,11 @@ void LightMeter::process(void) {
       // handled in onButtonReleased
       break;
     
-    case hSAveraging:
-      // handled in onButtonReleased
-      break;
-
     case hSHeld:
       // handled in onButtonReleased
       break;
 
     default:
-      luxAccumulator = 0;
-      sampleCount = 0;
       lux = 0;
       triggerState = hSRun;
       break;
@@ -636,17 +643,11 @@ void LightMeter::process(void) {
 }
 
 void LightMeter::updateLux(double inputLux) {
-  if (triggerState == hSAveraging) {
-    luxAccumulator += inputLux;
-    sampleCount++;
-    lux = luxAccumulator / sampleCount;
-  }
-
   if (triggerState == hSRun) {
     lux = inputLux;
   }
 
-  if (triggerState == hSHeld) {
-    lux = luxAccumulator / sampleCount;
-  }
+  //if (triggerState == hSHeld) {
+  //  lux = luxAccumulator;
+  //}
 }

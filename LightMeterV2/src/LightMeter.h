@@ -7,7 +7,7 @@
 // Battery Babysitter
 #include <SparkFunBQ27441.h>
 // Light, Lux, Meter
-#include <SparkFunTSL2561.h>
+#include <Adafruit_TSL2591.h>
 // For user config
 #include <EEPROM.h>
 // Oled display
@@ -36,7 +36,7 @@
 
 #define PIN_POWER_ON 16
 
-/* Calibration constant (default was: 16)
+/* Calibration constant
  * ISO 2720:1973 recommands a K range from 10.6 to 13.4
  * Sekonic, Canon and Nikon uses 12.5
  * Minolta, Kenko and Pentax uses 14
@@ -47,7 +47,7 @@
 #define CValue 129 // Cine
 #define DomeMultiplier 2.17 // Multiplier when using translucid Dome covering the sensor
 
-#define LIPO_CAPACITY 2000 // mAh
+#define LIPO_CAPACITY 1000 // mAh
 
 // Rotary encoder GREEN / RED LED
 #define PIN_LED_OK 11
@@ -80,7 +80,6 @@ enum MState_t {
 // Hold State
 enum holdState_t {
     hSRun,
-    hSAveraging,
     hSHeld
 };
 
@@ -149,9 +148,7 @@ class LightMeter {
         unsigned int  sensorMs = 402; // Integration ("shutter") time in milliseconds
         bool gain = 0; // Gain setting, 0 = X1, 1 = X16;
 
-        double luxAccumulator;
         double lux;
-        uint32_t sampleCount;
         uint8_t heartCount;
 
         MState_t state;
@@ -161,6 +158,7 @@ class LightMeter {
         void updateLux(double inputLux); // averaging function
         void loadConfigUser();
         void saveConfigUser();
+        float getRawLux();
         void getLuxAndCompute(bool fstop);
         void getLux();
         void blinkLed();
@@ -173,6 +171,9 @@ class LightMeter {
 
         // Static init of the encoder value
         long lastEncoderPos = -999;
+
+        bool needHigh = 0; // If High Gain, Hi will be displayed, and gain == 428x
+        bool overflow = 0; // Sensor is saturated and display Overflow
 
         // Leds
         int ledOkState = LOW;
