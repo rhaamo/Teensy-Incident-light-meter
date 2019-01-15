@@ -145,10 +145,8 @@ void setup() {
 }
 
 void loop() {
-  //Serial.println("in loop");
   delay(10); // wait 10ms
   myLightMeter.process();
-  //Serial.println("out loop");
 }
 
 // Constructor, do basic init here
@@ -297,7 +295,6 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 
 // Get and display bare LUX value
 void LightMeter::getLux() {
-  Serial.println("get lux");
   (void)getRawLux();
 
   // From getRawLux()
@@ -401,7 +398,6 @@ void LightMeter::blinkLed(void) {
 }
 
 void LightMeter::process(void) {
-  //Serial.println("processing");
   // Update buttons states
   uiPbEnter.update();
   uiPbUp.update();
