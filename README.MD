@@ -1,4 +1,4 @@
-Teensy Incident Light Meter
+Teensy Light Meter
 --------
 
 <img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/lightmeter.jpg" alt="Product" width="40%" height="40%">
@@ -32,6 +32,10 @@ Uses the following:
 <img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/schematic.png" alt="Schematic" width="40%" height="40%">
 
 *Schematic diagram.  Click to enlarge.*
+
+### Enclosure
+
+3D designed, printed, works great, to be published.
 
 ### PCB
 
