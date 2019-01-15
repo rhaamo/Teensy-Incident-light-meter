@@ -11,6 +11,15 @@ Teensy Light Meter
     $ pio run
     $ pio run --target upload
 
+Notes:
+  The TSL25x1 lib I use is either custom, or hacked from anoter one. We setup the sensor and powerup on setup(), then let it run freely.
+
+  The sensor do it's integration time by itself, we NEVER poweroff the sensor, then we read the value as the loop loops.
+
+  This is done to avoid the 120ms*integrationTime etc. delay, the loop is ultra fast, then buttons are reactive.
+
+  And we can then set the sensor to a high integration value without having 500ms delay introduced in the loop.
+
 ### Hardware
 
 Uses the following:

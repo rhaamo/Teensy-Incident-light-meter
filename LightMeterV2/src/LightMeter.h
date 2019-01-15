@@ -7,7 +7,7 @@
 // Battery Babysitter
 #include <SparkFunBQ27441.h>
 // Light, Lux, Meter
-#include <Adafruit_TSL2591.h>
+#include "Adafruit_TSL2591.h"
 // For user config
 #include <EEPROM.h>
 // Oled display
@@ -117,8 +117,19 @@ const float fStopTable[FSTOP_COUNT] = {1.4, 1.8, 1.9, 2, 2.2, 2.5, 2.8,
 							  3.2, 3.5, 3.8, 4, 4.5, 5, 5.6,
 							  6.3, 7.1, 8, 9, 10, 10.5, 11, 13,
 							  14, 16, 18, 20, 22};
-#define EXPOSURE_COUNT 3
-const float exposureTable[EXPOSURE_COUNT] = {0.041666666, 0.033333333, 0.016666666};
+
+// Konvas 1KCP: 8, 12, 16, 24, 25, 32
+#define EXPOSURE_COUNT 8
+const float exposureTable[EXPOSURE_COUNT] = {
+    0.125,          // 8 fps
+    0.083333333,    // 12 fps
+    0.0625,         // 16 fps
+    0.041666666,    // 24 fps
+    0.04,           // 25 fps
+    0.033333333,    // 30 fps
+    0.03125,        // 32 fps
+    0.016666666     // 60 fps
+    };
 
 #define ISO_COUNT 9
 uint8_t isoTableSize = ISO_COUNT;
@@ -155,10 +166,9 @@ class LightMeter {
         holdState_t triggerState;
 
     private:
-        void updateLux(double inputLux); // averaging function
         void loadConfigUser();
         void saveConfigUser();
-        float getRawLux();
+        void getRawLux();
         void getLuxAndCompute(bool fstop);
         void getLux();
         void blinkLed();

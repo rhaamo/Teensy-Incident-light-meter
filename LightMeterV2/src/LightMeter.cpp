@@ -8,6 +8,8 @@
  * user integration time choice [13ms, 101ms, 402ms]
  */
 
+Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
+
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
 LightMeter myLightMeter;
@@ -110,6 +112,7 @@ void setup() {
   pinMode(PIN_POWER_ON, OUTPUT);
   digitalWrite(PIN_POWER_ON, HIGH);
   Serial.begin(115200);
+  while(!Serial);
 
   // Leds output, off by default
   pinMode(PIN_LED_OK, OUTPUT);
@@ -142,11 +145,23 @@ void setup() {
   uiPbEnter.onRelease(onButtonReleased);
   uiPbUp.onRelease(onButtonReleased);
   uiPbDown.onRelease(onButtonReleased);
+
+  luxMeter.begin();
+  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+  luxMeter.enable();
 }
 
 void loop() {
+  unsigned long StartTime = millis();
   delay(10); // wait 10ms
+
   myLightMeter.process();
+  //Serial.println("loop");
+
+  unsigned long CurrentTime = millis();
+  unsigned long ElapsedTime = CurrentTime - StartTime;
+  Serial.print("loop:");
+  Serial.println(ElapsedTime);
 }
 
 // Constructor, do basic init here
@@ -213,20 +228,14 @@ void LightMeter::ledStatus(int state) {
   }
 }
 
-float LightMeter::getRawLux() {
-  Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
-
-  sensor_t sensor;
-  luxMeter.getSensor(&sensor);
+void LightMeter::getRawLux() {
+  unsigned long StartTime = millis();
 
   if (needHigh) {
     luxMeter.setGain(TSL2591_GAIN_HIGH);
   } else {
     luxMeter.setGain(TSL2591_GAIN_LOW);
   }
-  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-
-  luxMeter.begin();
 
   sensors_event_t event;
   luxMeter.getEvent(&event);
@@ -246,14 +255,18 @@ float LightMeter::getRawLux() {
   if (tempLux > 200) {needHigh = 0;}       // Turns off High hain
   if (needHigh) {tempLux = tempLux*.26;}   // OFFSET corrected
 
-  updateLux(tempLux);
-
-  return lux;
+  if (triggerState == hSRun) {
+    lux = tempLux;
+  }
+  unsigned long CurrentTime = millis();
+  unsigned long ElapsedTime = CurrentTime - StartTime;
+  Serial.print("getRawLux:");
+  Serial.println(ElapsedTime);
 }
 
 // Get and display calculated fStop or speed
 void LightMeter::getLuxAndCompute(bool fstop) {
-  (void)getRawLux();
+  getRawLux();
   float value;
 
   /*
@@ -295,11 +308,9 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 
 // Get and display bare LUX value
 void LightMeter::getLux() {
-  (void)getRawLux();
+  //(void)getRawLux();
 
   // From getRawLux()
-  Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
-
   sensor_t sensor;
   luxMeter.getSensor(&sensor);
 
@@ -308,9 +319,6 @@ void LightMeter::getLux() {
   } else {
     luxMeter.setGain(TSL2591_GAIN_LOW);
   }
-  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_200MS);
-
-  luxMeter.begin();
   // END
 
   // From Adafruit
@@ -636,14 +644,4 @@ void LightMeter::process(void) {
       triggerState = hSRun;
       break;
   }
-}
-
-void LightMeter::updateLux(double inputLux) {
-  if (triggerState == hSRun) {
-    lux = inputLux;
-  }
-
-  //if (triggerState == hSHeld) {
-  //  lux = luxAccumulator;
-  //}
 }
