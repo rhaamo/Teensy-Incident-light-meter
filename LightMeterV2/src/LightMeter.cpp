@@ -130,8 +130,8 @@ void setup() {
 
   oled.begin();     // Initialize the OLED
   oled.clear(ALL);  // Clear the display's internal memory
-  oled.display();   // Display what's in the buffer (splashscreen)
-  delay(1200);      // Delay 1200 ms
+  oled.drawLogo();  // Display custom logo
+  delay(2000);      // Delay 1200 ms
   oled.clear(PAGE); // Clear the buffer.
 
   // Setup Pushbuttons and encoder
