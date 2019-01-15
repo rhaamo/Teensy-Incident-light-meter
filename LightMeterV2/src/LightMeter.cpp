@@ -226,6 +226,7 @@ void LightMeter::powerDown() {
 
 // state 0 OK, state 1 KO
 void LightMeter::ledStatus(int state) {
+  return;
   // Set state HIGH / LOW and reset runtime counter
   if (state == 0) {
     ledKoState = LOW;
@@ -262,11 +263,11 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   good = luxMeter.getLux(gain, sensorMs, data0, data1, tempLux);
   updateLux(tempLux);
   if (fstop) {
-    // T value; Shutter time
+    // T value; Shutter time, in seconds
     value = pow(fStopTable[ConfigUser.fStopSetting], 2) * KValue / (lux * (isoTable[ConfigUser.isoSetting]));
   } else {
     // N value; Aperture
-    value = sqrt((exposureTable[ConfigUser.exposureSetting] * lux * isoTable[ConfigUser.isoSetting]) / KValue);
+    value = sqrt((exposureTable[ConfigUser.exposureSetting] * lux * isoTable[ConfigUser.isoSetting]) / CValue);
   }
   oled.eraseLowerArea();
   oled.drawLeftBracket(37, 10);
@@ -337,6 +338,7 @@ void LightMeter::getLux() {
 
 // TODO: handle duration
 void LightMeter::blinkLed(void) {
+  return;
   // Blink led if needed
 
   unsigned long currentMillis = millis();

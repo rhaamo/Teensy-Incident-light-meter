@@ -41,8 +41,11 @@
  * Sekonic, Canon and Nikon uses 12.5
  * Minolta, Kenko and Pentax uses 14
  * Difference between thoses two is 1/6 EV
+ * The TSL2591 seems to use 129
  */
-#define KValue 12.5
+#define KValue 129 // Photo
+#define CValue 129 // Cine
+#define DomeMultiplier 2.17 // Multiplier when using translucid Dome covering the sensor
 
 #define LIPO_CAPACITY 2000 // mAh
 
