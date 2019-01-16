@@ -4,6 +4,10 @@ Incident light metering is done on the subject, sensor is covered with a translu
 
 Reflected light metering is done facing the subject, or more precisely, the same spot as your camera, without anything covering the sensor.
 
+My calibration is only valid for reflected metering.
+
+I don't really know how it would be done for incident, perhaps doing a reflected calibration, then add the dome and do some magic to get the right "Dome Multiplier" value ?
+
 # My calibration
 
 I've done some "calibration" indoor, a 18% grey card (~A4 size) with ~5m away a studio lamp pointing at it, all day, providing a constant light source.
