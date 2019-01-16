@@ -18,4 +18,4 @@ Then I tweaked the Kvalue, to get a curve as much matching the one as the DSLR, 
 
 The LibreOffice sheet is available as a reference in ```LightMeterV2/fstop lux calc.ods```.
 
-<img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/calibration_curve.png" alt="calibration curve" width="40%" height="40%">
+<img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/calibration_curve.png" alt="calibration curve" width="80%" height="40%">
