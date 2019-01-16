@@ -7,6 +7,7 @@ Teensy Light Meter
 
  * <a href="./CALIBRATION.md">Calibration and notes</a>
  * <a href="./USAGE.md">How to use the firmware</a>
+ * See the pics folder for more pictures
 
 ### Software
 
