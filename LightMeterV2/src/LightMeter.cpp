@@ -144,21 +144,15 @@ void setup() {
   uiPbDown.onRelease(onButtonReleased);
 
   luxMeter.begin();
-  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_100MS);
+  luxMeter.setTiming(SENSOR_INTTIME_DEFAULT);
   luxMeter.enable();
 }
 
 void loop() {
-  unsigned long StartTime = millis();
   delay(10); // wait 10ms
 
   myLightMeter.process();
   //Serial.println("loop");
-
-  unsigned long CurrentTime = millis();
-  unsigned long ElapsedTime = CurrentTime - StartTime;
-  Serial.print("loop:");
-  Serial.println(ElapsedTime);
 }
 
 // Constructor, do basic init here
@@ -226,12 +220,12 @@ void LightMeter::ledStatus(int state) {
 }
 
 void LightMeter::getRawLux() {
-  unsigned long StartTime = millis();
-
   if (needHigh) {
     luxMeter.setGain(TSL2591_GAIN_HIGH);
+    luxMeter.setTiming(SENSOR_INTTIME_HIGH);    // 200ms
   } else {
     luxMeter.setGain(TSL2591_GAIN_LOW);
+    luxMeter.setTiming(SENSOR_INTTIME_DEFAULT); // 400ms
   }
 
   sensors_event_t event;
@@ -247,18 +241,14 @@ void LightMeter::getRawLux() {
         overflow = 0;
       }
 
-  tempLux = tempLux * DomeMultiplier;      // DomeMultiplier = 2.17 (calibration)
+  tempLux = tempLux * DomeMultiplier;      // DomeMultiplier = 2.3 (calibration) INCIDENT only
   if (tempLux < 40) {needHigh = 1;}        // ~ 1 +1/3 OFFSET (*0.26 in lux calibration)
   if (tempLux > 200) {needHigh = 0;}       // Turns off High hain
-  if (needHigh) {tempLux = tempLux*.26;}   // OFFSET corrected
+  //if (needHigh) {tempLux = tempLux*.26;}   // OFFSET corrected
 
   if (triggerState == hSRun) {
     lux = tempLux;
   }
-  unsigned long CurrentTime = millis();
-  unsigned long ElapsedTime = CurrentTime - StartTime;
-  Serial.print("getRawLux:");
-  Serial.println(ElapsedTime);
 }
 
 // Get and display calculated fStop or speed
@@ -288,7 +278,27 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   if (value <1) {
       Serial.print("1/");
   }
-  Serial.println(value);
+  Serial.print(value);
+  Serial.print(" ;gain: ");
+  tsl2591Gain_t gain = luxMeter.getGain();
+  switch(gain)
+  {
+    case TSL2591_GAIN_LOW:
+      Serial.print(F("1x (Low)"));
+      break;
+    case TSL2591_GAIN_MED:
+      Serial.print(F("25x (Medium)"));
+      break;
+    case TSL2591_GAIN_HIGH:
+      Serial.print(F("428x (High)"));
+      break;
+    case TSL2591_GAIN_MAX:
+      Serial.print(F("9876x (Max)"));
+      break;
+  }
+  Serial.print(" ;timing: ");
+  Serial.print((luxMeter.getTiming() + 1) * 100, DEC);
+  Serial.println(F(" ms"));
 
   oled.eraseLowerArea();
   oled.drawLeftBracket(37, 10);
@@ -315,7 +325,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 
 // Get and display bare LUX value
 void LightMeter::getLux() {
-  //(void)getRawLux();
+  (void)getRawLux();
 
   // From getRawLux()
   sensor_t sensor;

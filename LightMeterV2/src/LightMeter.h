@@ -44,7 +44,7 @@
  * Kevin Agnes used 129 [2591, dome]
  * Kevin Kadooka used 64 [2561, no dome]
  */
-#define KValue 9.5 // Photo
+#define KValue 30 // Photo
 /* C Calibration constant
  * PhotoChemicals used 25 [2591, dome unknown]
  * Kevin Agnes used 129 [2591, dome]
@@ -54,6 +54,9 @@
 #define DomeMultiplier 1 // Multiplier when using translucid Dome covering the sensor
                          // The dome is only used for Incident light metering
                          // Which isn't supported yet
+
+#define SENSOR_INTTIME_DEFAULT TSL2591_INTEGRATIONTIME_200MS
+#define SENSOR_INTTIME_HIGH TSL2591_INTEGRATIONTIME_400MS
 
 #define LIPO_CAPACITY 1000 // mAh
 
