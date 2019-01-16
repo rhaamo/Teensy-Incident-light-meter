@@ -48,6 +48,7 @@ The TSL2591 doesn't permit changing I2C address, you can only have one.
  - In raw LUX menu, add hold indicator
  - Test sensor overflow and alert
  - Finish RED/GREEN led handling
+ - Investigate if the TeensyView ALTERNATE mode is really needed or can it work stock
  - Games, because why not ?
 
 ### Hardware
@@ -55,7 +56,7 @@ The TSL2591 doesn't permit changing I2C address, you can only have one.
 Uses the following:
 
 * [Teensy 3.2](https://www.sparkfun.com/products/13736)
-* [TeensyView](https://www.sparkfun.com/products/14048)
+* [TeensyView](https://www.sparkfun.com/products/14048) (ALTERNATE mode)
 * [TSL2591 HDR Light Sensor](https://www.adafruit.com/product/1980)
 * [Battery Babysitter](https://www.sparkfun.com/products/13777)
 * [Rotary Encoder with Red/Green led](https://www.digikey.fr/product-detail/fr/bourns-inc/PEL12D-4225S-S2024/PEL12D-4225S-S2024-ND/2498880)
@@ -72,6 +73,7 @@ Some build notes :
  - The battery can be either connected from the JST connector (DIY enclosure) or from the pads right next to it (provided enclosure)
  - The D+ and D- from USB should be soldered on the teensy first before soldering it to the PCB, make sure to mark with a marker the D- wire. Then after soldering the teensy and the babysitter, twist the two DATA wires and solder them accordingly to the babysitter very small pads.
  - The TSL2591 use four wire (Vcc, GND, SDA, SCL) and ideally use two small connectors, allowing for quick disconnect, for either hacking or easy replacement.
+ - The TeensyView needs to be in ALTERNATE mode, cut some jumper pads and solder the others. Look at Sparkfun docs for that part.
 
 <img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/schematic.png" alt="Schematic" width="40%" height="40%">
 
