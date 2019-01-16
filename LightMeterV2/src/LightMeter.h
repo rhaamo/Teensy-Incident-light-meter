@@ -41,11 +41,19 @@
  * Sekonic, Canon and Nikon uses 12.5
  * Minolta, Kenko and Pentax uses 14
  * Difference between thoses two is 1/6 EV
- * The TSL2591 seems to use 129
+ * Kevin Agnes used 129 [2591, dome]
+ * Kevin Kadooka used 64 [2561, no dome]
  */
-#define KValue 129 // Photo
-#define CValue 129 // Cine
-#define DomeMultiplier 2.17 // Multiplier when using translucid Dome covering the sensor
+#define KValue 9.5 // Photo
+/* C Calibration constant
+ * PhotoChemicals used 25 [2591, dome unknown]
+ * Kevin Agnes used 129 [2591, dome]
+ */
+#define CValue 9.5 // Cine
+//#define DomeMultiplier 2.17 // Multiplier when using translucid Dome covering the sensor
+#define DomeMultiplier 1 // Multiplier when using translucid Dome covering the sensor
+                         // The dome is only used for Incident light metering
+                         // Which isn't supported yet
 
 #define LIPO_CAPACITY 1000 // mAh
 
@@ -71,10 +79,6 @@ enum MState_t {
     // Not yet implemented
     MFStopRangeInit,
     MFStopRange,            // Select a fStop range from a few pre-determinated
-    MKCalibrationInit,
-    MKCalibration,          // Change the K calibration value
-    MIntegrationTimeInit,
-    MIntegrationTime,       // Change the sensor integration time
 };
 
 // Hold State

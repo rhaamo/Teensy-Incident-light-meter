@@ -1,11 +1,8 @@
 #include "LightMeter.h"
 
 /* TODO
- * Switch to Adafruit TSL2561 lib
- * RGB handling of the encoder
- * User defined K-constant value
+ * RG handling of the encoder
  * fStop user range switcher
- * user integration time choice [13ms, 101ms, 402ms]
  */
 
 Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
@@ -112,7 +109,7 @@ void setup() {
   pinMode(PIN_POWER_ON, OUTPUT);
   digitalWrite(PIN_POWER_ON, HIGH);
   Serial.begin(115200);
-  while(!Serial);
+  //while(!Serial);
 
   // Leds output, off by default
   pinMode(PIN_LED_OK, OUTPUT);
@@ -147,7 +144,7 @@ void setup() {
   uiPbDown.onRelease(onButtonReleased);
 
   luxMeter.begin();
-  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+  luxMeter.setTiming(TSL2591_INTEGRATIONTIME_100MS);
   luxMeter.enable();
 }
 
@@ -283,6 +280,16 @@ void LightMeter::getLuxAndCompute(bool fstop) {
     // N value; Aperture
     value = sqrt((exposureTable[ConfigUser.exposureSetting] * lux * isoTable[ConfigUser.isoSetting]) / CValue);
   }
+  Serial.print("lux: ");
+  Serial.print(lux);
+  Serial.print(" ;stop: ");
+  Serial.print(fStopTable[ConfigUser.fStopSetting]);
+  Serial.print(" ;speed: ");
+  if (value <1) {
+      Serial.print("1/");
+  }
+  Serial.println(value);
+
   oled.eraseLowerArea();
   oled.drawLeftBracket(37, 10);
   oled.drawRightBracket(122, 10);
@@ -609,10 +616,6 @@ void LightMeter::process(void) {
 
     case MFStopRangeInit:
     case MFStopRange:
-    case MKCalibrationInit:
-    case MKCalibration:
-    case MIntegrationTimeInit:
-    case MIntegrationTime:
 
     default:
       state = Minit;
