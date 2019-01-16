@@ -3,6 +3,11 @@ Teensy Light Meter
 
 <img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/lightmeter.jpg" alt="Product" width="40%" height="40%">
 
+### Links
+
+ * <a href="./CALIBRATION.md">Calibration and notes</a>
+ * <a href="./USAGE.md">How to use the firmware</a>
+
 ### Software
 
     $ git clone
