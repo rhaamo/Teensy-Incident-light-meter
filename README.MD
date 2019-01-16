@@ -26,6 +26,30 @@ Notes:
 
   And we can then set the sensor to a high integration value without having 500ms delay introduced in the loop.
 
+### Notes
+
+The Light Meter isn't super slim, but not too big, it could get 5mm less easily if the pins connecting the teensyview were trimmed.
+
+Without trimming everything used is stock without modifications. Also the OLED display PCB is way bigger than the LCD itself, and that forbig to reduce by ~3mm without having an ugly PCB popping out. Trimming the pins will be envisaged in the future.
+
+The choosen battery was a BL-5C because I have one spare, but any with a JST connector would do the job, only the middle part and bottom of the enclosure would need redesign. The battery connector is some sort of wire bended, passed through a hole and glued after soldering. Not the best but I didn't wanted to wait a month to get a small 3-pins 3mm pitch battery connector to design the enclosure.
+
+The stock BL-5C, genuine, is a 1000mAh battery, the Light Meter, with sensor free-running is consuming about 40mA according to the battery charger, which allows between 17 and 25 hours of continus running, in theory. You can still easily swap battery anyway, just bring the right screwdriver, and spare charged batteries with you.
+
+The USB data is hard wired between the D+/D- pads of the teensy to the battery babysitter, allowing to program the teensy from the battery charger directly without doing anything, reset button is useless as we are using the stock teensy bootloader, permitting remote flash and reboot.
+
+The TSL2591 doesn't permit changing I2C address, you can only have one.
+
+### Todo
+
+ - Reducing enclosure thickness by around 5mm by trimming the teensyview pins and document the needed size
+ - Design some sort of sliding window to protect the sensor
+ - Power saving, shutdown after maybe 1h without use
+ - In raw LUX menu, add hold indicator
+ - Test sensor overflow and alert
+ - Finish RED/GREEN led handling
+ - Games, because why not ?
+
 ### Hardware
 
 Uses the following:
@@ -43,6 +67,11 @@ Uses the following:
 * Resistor: 4.7k
 * Capacitor: 10uF, radial, polarised
 * A PCB from the PCB folder
+
+Some build notes :
+ - The battery can be either connected from the JST connector (DIY enclosure) or from the pads right next to it (provided enclosure)
+ - The D+ and D- from USB should be soldered on the teensy first before soldering it to the PCB, make sure to mark with a marker the D- wire. Then after soldering the teensy and the babysitter, twist the two DATA wires and solder them accordingly to the babysitter very small pads.
+ - The TSL2591 use four wire (Vcc, GND, SDA, SCL) and ideally use two small connectors, allowing for quick disconnect, for either hacking or easy replacement.
 
 <img src="https://raw.githubusercontent.com/rhaamo/Teensy-light-meter/master/pics/schematic.png" alt="Schematic" width="40%" height="40%">
 
