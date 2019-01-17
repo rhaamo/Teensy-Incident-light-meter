@@ -1,5 +1,6 @@
-#ifndef LUX_PANEL_H
-#define LUX_PANEL_H
+// Copyright 2018 Dashie <dashie@sigpipe.me>
+#ifndef LIGHTMETERV2_SRC_LIGHTMETER_H_
+#define LIGHTMETERV2_SRC_LIGHTMETER_H_
 
 // Main Library
 #include <Arduino.h>
@@ -14,11 +15,11 @@
 #include <TeensyView.h>
 // Input handling
 #define ENCODER_OPTIMIZE_INTERRUPTS
-#include <Bounce2.h>             // https://github.com/thomasfredericks/Bounce2
-#include <Button.h>              // https://github.com/r89m/Button
-#include <ButtonEventCallback.h> // Button too
-#include <Encoder.h>    // http://www.pjrc.com/teensy/td_libs_Encoder.html
-#include <PushButton.h> // https://github.com/r89m/PushButton
+#include <Bounce2.h>              // https://github.com/thomasfredericks/Bounce2
+#include <Button.h>               // https://github.com/r89m/Button
+#include <ButtonEventCallback.h>  // Button too
+#include <Encoder.h>     // http://www.pjrc.com/teensy/td_libs_Encoder.html
+#include <PushButton.h>  // https://github.com/r89m/PushButton
 #include <jled.h>
 
 // Custom OLED routines
@@ -26,19 +27,19 @@
 
 // Pinout declaration of TeensyView module
 // The module is in Alternate configuration
-#define PIN_RESET 2 // RST
-#define PIN_DC 21   // DC
-#define PIN_CS 20   // CS
-#define PIN_SCK 14  // SCK
-#define PIN_MOSI 7  // MOSI
+#define PIN_RESET 2  // RST
+#define PIN_DC 21    // DC
+#define PIN_CS 20    // CS
+#define PIN_SCK 14   // SCK
+#define PIN_MOSI 7   // MOSI
 
-#define ROT_ENC_DETENTS_COUNTS                                                 \
-  3 // Encoder produce 4 counts per detent
-    // But using 3 produce the best result...
+#define ROT_ENC_DETENTS_COUNTS \
+    3  // Encoder produce 4 counts per detent
+       // But using 3 produce the best result...
 
 #define PIN_POWER_ON 16
 
-/* Calibration constant
+/* Calibration constant [Photo]
  * ISO 2720:1973 recommands a K range from 10.6 to 13.4
  * Sekonic, Canon and Nikon uses 12.5
  * Minolta, Kenko and Pentax uses 14
@@ -46,23 +47,23 @@
  * Kevin Agnes used 129 [2591, dome]
  * Kevin Kadooka used 64 [2561, no dome]
  */
-#define KValue 30 // Photo
-/* C Calibration constant
+#define KValue 30
+
+/* C Calibration constant [Cine/Video]
  * PhotoChemicals used 25 [2591, dome unknown]
  * Kevin Agnes used 129 [2591, dome]
  */
-#define CValue 9.5 // Cine
-//#define DomeMultiplier 2.17 // Multiplier when using translucid Dome covering
-//the sensor
-#define DomeMultiplier                                                         \
-  1 // Multiplier when using translucid Dome covering the sensor
-    // The dome is only used for Incident light metering
-    // Which isn't supported yet
+#define CValue 9.5  // Cine
+
+#define DomeMultiplier 1
+// Multiplier when using translucid Dome covering the sensor
+// The dome is only used for Incident light metering
+// Which isn't supported yet
 
 #define SENSOR_INTTIME_DEFAULT TSL2591_INTEGRATIONTIME_200MS
 #define SENSOR_INTTIME_HIGH TSL2591_INTEGRATIONTIME_400MS
 
-#define LIPO_CAPACITY 1000 // mAh
+#define LIPO_CAPACITY 1000  // mAh
 
 // Rotary encoder GREEN / RED LED
 #define PIN_LED_OK 11
@@ -77,22 +78,22 @@
 
 // Menu State
 enum MState_t {
-  Minit,                  // Initial state page
-  MDisplayPhotoValueInit, // Init page for photo light metering
-  MDisplayPhotoValue,     // Page for photo light metering
-  MDisplayVideoValueInit, // Init for video light metering
-  MDisplayVideoValue,     // Video light metering
-  MSetISOInit,            // Init for ISO Selection
-  MSetISO,                // ISO Selection
-  MSystemInit,
-  MSystem, // System informations
-  MDisplayLuxValueInit,
-  MDisplayLuxValue, // Lux value only
-  MMaryInit,
-  MMary, // <3
-  // Not yet implemented
-  MFStopRangeInit,
-  MFStopRange, // Select a fStop range from a few pre-determinated
+    Minit,                   // Initial state page
+    MDisplayPhotoValueInit,  // Init page for photo light metering
+    MDisplayPhotoValue,      // Page for photo light metering
+    MDisplayVideoValueInit,  // Init for video light metering
+    MDisplayVideoValue,      // Video light metering
+    MSetISOInit,             // Init for ISO Selection
+    MSetISO,                 // ISO Selection
+    MSystemInit,
+    MSystem,  // System informations
+    MDisplayLuxValueInit,
+    MDisplayLuxValue,  // Lux value only
+    MMaryInit,
+    MMary,  // <3
+    // Not yet implemented
+    MFStopRangeInit,
+    MFStopRange,  // Select a fStop range from a few pre-determinated
 };
 
 // Hold State
@@ -117,10 +118,10 @@ enum holdState_t { hSRun, hSHeld };
  */
 
 enum FS_table {
-  TableMto,
-  TableWarra,
-  TableFuji,
-  TableFull // default
+    TableMto,
+    TableWarra,
+    TableFuji,
+    TableFull  // default
 };
 
 // Custom tables
@@ -136,14 +137,14 @@ const float fStopTable[FSTOP_COUNT] = {
 // Konvas 1KCP: 8, 12, 16, 24, 25, 32
 #define EXPOSURE_COUNT 8
 const float exposureTable[EXPOSURE_COUNT] = {
-    0.125,       // 8 fps
-    0.083333333, // 12 fps
-    0.0625,      // 16 fps
-    0.041666666, // 24 fps
-    0.04,        // 25 fps
-    0.033333333, // 30 fps
-    0.03125,     // 32 fps
-    0.016666666  // 60 fps
+    0.125,        // 8 fps
+    0.083333333,  // 12 fps
+    0.0625,       // 16 fps
+    0.041666666,  // 24 fps
+    0.04,         // 25 fps
+    0.033333333,  // 30 fps
+    0.03125,      // 32 fps
+    0.016666666   // 60 fps
 };
 
 #define ISO_COUNT 9
@@ -156,50 +157,50 @@ const float isoTable[ISO_COUNT] = {25,  100,  125,  200, 400,
 
 // EEprom user config
 struct CfgUser {
-  FS_table fStops;             // Unused for now
-  uint8_t fStopSetting = 14;   // 5.6; Saved on shutdown
-  uint8_t exposureSetting = 1; // 0.04; Saved on shutdown
-  uint8_t isoSetting = 5;      // 400; Saved on change
+    FS_table fStops;              // Unused for now
+    uint8_t fStopSetting = 14;    // 5.6; Saved on shutdown
+    uint8_t exposureSetting = 1;  // 0.04; Saved on shutdown
+    uint8_t isoSetting = 5;       // 400; Saved on change
 };
 
 class LightMeter {
-public:
-  LightMeter(void);
-  void process();
-  void powerDown(bool);
-  void ledStatus(int, int, int);
-  void saveConfigUser();
+ public:
+    LightMeter(void);
+    void process();
+    void powerDown(bool);
+    void ledStatus(int, int, int);
+    void saveConfigUser();
 
-  bool lipoGood;
+    bool lipoGood;
 
-  double lux;
-  uint8_t heartCount;
+    double lux;
+    uint8_t heartCount;
 
-  uint32_t lastActivity = 0;
+    uint32_t lastActivity = 0;
 
-  MState_t state;
-  holdState_t triggerState;
+    MState_t state;
+    holdState_t triggerState;
 
-private:
-  void loadConfigUser();
-  void getRawLux();
-  void getLuxAndCompute(bool fstop);
-  void getLux();
-  void blinkLed();
-  uint32_t eeprom_crc(uint16_t position);
+ private:
+    void loadConfigUser();
+    void getRawLux();
+    void getLuxAndCompute(bool fstop);
+    void getLux();
+    void blinkLed();
+    uint32_t eeprom_crc(uint16_t position);
 
-  // Our Marker to validate EEPROM is valid
-  const String progName = "LightMeter";
-  int addrConfigUser = 0;     // Always save at position 0 in EEPROM
-  uint32_t addrMarker = 2000; // Store marker at 2000 bytes in EEPROM
+    // Our Marker to validate EEPROM is valid
+    const String progName = "LightMeter";
+    int addrConfigUser = 0;      // Always save at position 0 in EEPROM
+    uint32_t addrMarker = 2000;  // Store marker at 2000 bytes in EEPROM
 
-  // Static init of the encoder value
-  long lastEncoderPos = -999;
+    // Static init of the encoder value
+    uint32_t lastEncoderPos = -999;
 
-  bool needHigh = 0; // If High Gain, Hi will be displayed, and gain == 428x
-  bool overflow = 0; // Sensor is saturated and display Overflow
+    bool needHigh = 0;  // If High Gain, Hi will be displayed, and gain == 428x
+    bool overflow = 0;  // Sensor is saturated and display Overflow
 
-  CfgUser ConfigUser;
+    CfgUser ConfigUser;
 };
 
-#endif
+#endif  // LIGHTMETERV2_SRC_LIGHTMETER_H_
