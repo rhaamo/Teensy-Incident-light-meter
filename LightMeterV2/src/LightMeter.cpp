@@ -25,6 +25,8 @@ void cfgPushButton(Bounce &bB) {
  * Button down = next menu, up = previous menu
  */
 void onButtonReleased(Button& btn, uint16_t duration) {
+  myLightMeter.lastActivity = millis(); // reset counter
+
   Serial.println("button pressed");
   // UP button
   if (btn.is(uiPbUp)) {
@@ -62,25 +64,8 @@ void onButtonReleased(Button& btn, uint16_t duration) {
   } else if (btn.is(uiPbEnter)) {
     Serial.println("ENTER button pressed");
     if (myLightMeter.state == MSystem) {
-      oled.clear(PAGE);
-      oled.setFontType(1);
-      oled.setCursor(6, 6);
-      oled.print("Power down.");
-      oled.display();
-      delay(1000);
-      myLightMeter.powerDown();
-      delay(4000);
+      myLightMeter.powerDown(false);
 
-      myLightMeter.ledStatus(LED_KO);
-      oled.clear(PAGE);
-      oled.setCursor(6, 6);
-      oled.print("Failed !");
-      oled.display();
-      delay(1000);
-
-      oled.setFontType(0);
-      oled.clear(PAGE);
-      oled.display();
       myLightMeter.state = MSystemInit;
     } else if (myLightMeter.state == MMary) {
       if (myLightMeter.heartCount < 7) {
@@ -146,6 +131,10 @@ void setup() {
 void loop() {
   delay(10); // wait 10ms
 
+  if (millis() - myLightMeter.lastActivity > SLEEP_AFTER) {
+    myLightMeter.powerDown(true);
+  }
+
   myLightMeter.process();
   //Serial.println("loop");
 }
@@ -190,13 +179,41 @@ void LightMeter::saveConfigUser() {
 }
 
 // Sleep time
-void LightMeter::powerDown() {
-  // Last minute things
-  saveConfigUser();
-  delay(10);
+void LightMeter::powerDown(bool autosleep) {
+      oled.clear(PAGE);
+      oled.setFontType(1);
+      oled.setCursor(6, 6);
+      if (autosleep) {
+        oled.print("Auto sleep zZz");
+      } else {
+        oled.print("Power down.");
+      }
+      oled.display();
+      delay(1000);
 
-  // Try to shutdown
-  digitalWrite(PIN_POWER_ON, LOW);
+      // Last minute things
+      saveConfigUser();
+      delay(10);
+
+      // Try to shutdown
+      digitalWrite(PIN_POWER_ON, LOW);
+
+      // Oops failed
+      lastActivity = millis(); // reset counter
+      delay(4000);
+
+      myLightMeter.ledStatus(LED_KO);
+      oled.clear(PAGE);
+      oled.setCursor(6, 6);
+      oled.print("Failed !");
+      oled.display();
+      delay(1000);
+
+      oled.setFontType(0);
+      oled.clear(PAGE);
+      oled.display();
+
+      myLightMeter.state = MSystemInit;
 }
 
 // state 0 OK, state 1 KO
@@ -641,6 +658,7 @@ void LightMeter::process(void) {
 
   if (curEncoderPos != lastEncoderPos) {
     // Encoder moved, set new position
+    myLightMeter.lastActivity = millis(); // reset counter
     lastEncoderPos = curEncoderPos;
   }
 

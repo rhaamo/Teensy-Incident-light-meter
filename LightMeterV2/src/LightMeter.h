@@ -64,6 +64,13 @@
 #define PIN_LED_OK 11
 #define PIN_LED_KO 10
 
+/* Auto sleep after
+ * 3600000 = 1h
+ *   60000 = 1mn
+ *    1000 = 1sec
+ */
+#define SLEEP_AFTER 3600000
+
 // Menu State
 enum MState_t {
     Minit,                  // Initial state page
@@ -157,7 +164,7 @@ class LightMeter {
     public:
         LightMeter(void);
         void process();
-        void powerDown(void);
+        void powerDown(bool);
         void ledStatus(int state);
 
         bool lipoGood;
@@ -168,6 +175,8 @@ class LightMeter {
 
         double lux;
         uint8_t heartCount;
+
+        uint32_t lastActivity = 0;
 
         MState_t state;
         holdState_t triggerState;

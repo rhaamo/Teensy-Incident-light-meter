@@ -8,7 +8,7 @@ The top button is the power-on, and previous-menu, the bottom one is next-menu.
 
 To power-on the light meter, press the top button for a few seconds.
 
-To power-down the light meter, go to the system menu and press the encoder.
+To power-down the light meter, go to the system menu and press the encoder. An auto-power down is also implemented, if there is no knob or button handling in one hour, it will auto power-off to save battery life.
 
 If charging, a small "plug" icon will appears on left of the battery indicator on top-right.
 
