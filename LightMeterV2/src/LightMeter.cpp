@@ -352,8 +352,8 @@ void LightMeter::getLux() {
   oled.print("   ");
 
   oled.setCursor(64, 11);
-  oled.print("full: ");
-  oled.print(full);
+  oled.print("vis: ");
+  oled.print(full - ir);
   oled.print("   ");
 
   // Print out the result
