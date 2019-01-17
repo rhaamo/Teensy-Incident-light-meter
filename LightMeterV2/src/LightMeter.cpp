@@ -1,10 +1,5 @@
 #include "LightMeter.h"
 
-/* TODO
- * RG handling of the encoder
- * fStop user range switcher
- */
-
 Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
