@@ -211,8 +211,7 @@ tsl2591IntegrationTime_t Adafruit_TSL2591::getTiming() { return _integration; }
 /**************************************************************************/
 float Adafruit_TSL2591::calculateLux(uint16_t ch0, uint16_t ch1) {
     float atime, again;
-    float cpl, lux1, lux2, lux;
-    uint32_t chan0, chan1;
+    float cpl, lux;
 
     // Check for overflow conditions first
     if ((ch0 == 0xFFFF) | (ch1 == 0xFFFF)) {
