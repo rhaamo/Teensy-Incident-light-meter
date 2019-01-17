@@ -19,6 +19,7 @@
 #include <ButtonEventCallback.h>  // Button too
 #include <PushButton.h>           // https://github.com/r89m/PushButton
 #include <Bounce2.h>              // https://github.com/thomasfredericks/Bounce2
+#include <jled.h>
 
 // Custom OLED routines
 #include "OledFunctions.h"
@@ -165,7 +166,8 @@ class LightMeter {
         LightMeter(void);
         void process();
         void powerDown(bool);
-        void ledStatus(int state);
+        void ledStatus(int, int, int);
+        void saveConfigUser();
 
         bool lipoGood;
         unsigned char sensorID;
@@ -183,7 +185,6 @@ class LightMeter {
 
     private:
         void loadConfigUser();
-        void saveConfigUser();
         void getRawLux();
         void getLuxAndCompute(bool fstop);
         void getLux();
@@ -200,18 +201,6 @@ class LightMeter {
 
         bool needHigh = 0; // If High Gain, Hi will be displayed, and gain == 428x
         bool overflow = 0; // Sensor is saturated and display Overflow
-
-        // Leds
-        int ledOkState = LOW;
-        int ledKoState = LOW;
-        unsigned long ledOkPrevMillis = 0;
-        unsigned long ledKoPrevMillis = 0;
-        unsigned long ledOkRuntime = 0;
-        unsigned long ledKoRuntime = 0;
-        const unsigned long ledOkInterval = 1000; // ms
-        const unsigned long ledKoInterval = 1000; // ms
-        const unsigned long ledOkDuration = 2000; // ms
-        const unsigned long ledKoDuration = 2000; // ms
 
         CfgUser ConfigUser;
 };

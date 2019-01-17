@@ -12,6 +12,9 @@ PushButton uiPbEnter = PushButton(4);
 PushButton uiPbUp = PushButton(22);
 PushButton uiPbDown = PushButton(23);
 
+JLed ledGreen = JLed(PIN_LED_OK);
+JLed ledRed = JLed(PIN_LED_KO);
+
 // Boing boing
 void cfgPushButton(Bounce &bB) {
   bB.interval(20); // set to 15ms, default 10ms
@@ -35,6 +38,7 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     } else if (myLightMeter.state == MDisplayVideoValue) {
       myLightMeter.state = MDisplayPhotoValueInit;
     } else if (myLightMeter.state == MSetISO) {
+      myLightMeter.saveConfigUser();
       myLightMeter.state = MDisplayVideoValueInit;
     } else if (myLightMeter.state == MSystem) {
       myLightMeter.state = MSetISOInit;
@@ -51,6 +55,7 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     } else if (myLightMeter.state == MDisplayVideoValue) {
       myLightMeter.state = MSetISOInit;
     } else if (myLightMeter.state == MSetISO) {
+      myLightMeter.saveConfigUser();
       myLightMeter.state = MSystemInit;
     } else if (myLightMeter.state == MSystem) {
       myLightMeter.state = MDisplayLuxValueInit;
@@ -70,6 +75,8 @@ void onButtonReleased(Button& btn, uint16_t duration) {
     } else if (myLightMeter.state == MMary) {
       if (myLightMeter.heartCount < 7) {
         oled.drawHeart(myLightMeter.heartCount * 18, 12);
+        ledRed.Off();
+        ledGreen.Blink(100, 100).Repeat(2);
         myLightMeter.heartCount++;
       }
 
@@ -170,12 +177,12 @@ void LightMeter::saveConfigUser() {
   // 2000 for a teensy 3.2, 1000 for a 2.0, 4000 for a >= 3.5
   if (sizeof(ConfigUser) >= addrMarker) {
     Serial.println("sizeof(ConfigUser) >= 2000 !!!");
-    ledStatus(LED_KO);
+    ledStatus(LED_KO, 500, 3);
     return;
   }
 	EEPROM.put(addrConfigUser, ConfigUser);
   EEPROM.put(addrMarker, progName);
-  ledStatus(LED_OK);
+  ledStatus(LED_OK, 300, 1);
 }
 
 // Sleep time
@@ -198,11 +205,12 @@ void LightMeter::powerDown(bool autosleep) {
       // Try to shutdown
       digitalWrite(PIN_POWER_ON, LOW);
 
+      myLightMeter.ledStatus(LED_KO, 1000, 3);
+
       // Oops failed
       lastActivity = millis(); // reset counter
       delay(4000);
 
-      myLightMeter.ledStatus(LED_KO);
       oled.clear(PAGE);
       oled.setCursor(6, 6);
       oled.print("Failed !");
@@ -217,17 +225,13 @@ void LightMeter::powerDown(bool autosleep) {
 }
 
 // state 0 OK, state 1 KO
-void LightMeter::ledStatus(int state) {
-  return;
-  // Set state HIGH / LOW and reset runtime counter
+void LightMeter::ledStatus(int state, int delay, int repeat) {
   if (state == 0) {
-    ledKoState = LOW;
-    ledOkState = HIGH;
-    ledOkRuntime = 0;
+    ledGreen.Blink(delay, delay).Repeat(repeat);
+    ledRed.Off();
   } else {
-    ledKoState = HIGH;
-    ledOkState = LOW;
-    ledKoRuntime = 0;
+    ledRed.Blink(delay, delay).Repeat(repeat);
+    ledGreen.Off();
   }
 }
 
@@ -324,7 +328,7 @@ void LightMeter::getLuxAndCompute(bool fstop) {
   }
   if (overflow) {
     oled.drawNo(33, 12);
-    ledStatus(LED_KO);
+    ledStatus(LED_KO, 500, 3);
   }
   if (triggerState == hSHeld) {
     oled.holdStyle1(100, 10);
@@ -379,7 +383,7 @@ void LightMeter::getLux() {
     oled.print("  ");
   } else {
     oled.drawNo(120, 20);
-    ledStatus(LED_KO);
+    ledStatus(LED_KO, 1000, 3);
   }
   if (triggerState == hSHeld) {
     oled.holdStyle1(100, 22);
@@ -390,57 +394,6 @@ void LightMeter::getLux() {
   }
 }
 
-// TODO: handle duration
-void LightMeter::blinkLed(void) {
-  return;
-  // Blink led if needed
-
-  unsigned long currentMillis = millis();
-
-  if (ledOkRuntime >= ledOkDuration) {
-    // Switch off led
-    ledOkState = LOW;
-    digitalWrite(PIN_LED_OK, ledOkState);
-    // Reset counter
-    ledOkRuntime = 0;
-  } else if (currentMillis - ledOkPrevMillis >= ledOkInterval) {
-    // Change state
-    ledOkPrevMillis = currentMillis;
-
-    if (ledOkState == LOW) {
-      ledOkState = HIGH;
-    } else {
-      ledOkState = LOW;
-    }
-
-    digitalWrite(PIN_LED_OK, ledOkState);
-    // Add current count to led counter
-    ledOkRuntime += (currentMillis - ledOkPrevMillis);
-  }
-
-  if (ledKoRuntime >= ledKoDuration) {
-    // Switch off led
-    ledKoState = LOW;
-    digitalWrite(PIN_LED_KO, ledKoState);
-    // Reset counter
-    ledKoRuntime = 0;
-  } else if (currentMillis - ledKoPrevMillis >= ledKoInterval) {
-    // Change state
-    ledKoPrevMillis = currentMillis;
-
-    if (ledOkState == LOW) {
-      ledKoState = HIGH;
-    } else {
-      ledKoState = LOW;
-    }
-
-    digitalWrite(PIN_LED_KO, ledKoState);
-    // Add current count to led counter
-    ledKoRuntime += (currentMillis - ledKoPrevMillis);
-  }
-
-}
-
 void LightMeter::process(void) {
   // Update buttons states
   uiPbEnter.update();
@@ -448,7 +401,8 @@ void LightMeter::process(void) {
   uiPbDown.update();
   long curEncoderPos = uiEncoder.read();
 
-  blinkLed();
+  ledGreen.Update();
+  ledRed.Update();
 
   // Do not update display for now
   bool drawDisplay = false;
@@ -568,8 +522,6 @@ void LightMeter::process(void) {
 
         // Draw new value
         oled.drawISOScale(ConfigUser.isoSetting);
-
-        saveConfigUser();
       }
 
       break;
