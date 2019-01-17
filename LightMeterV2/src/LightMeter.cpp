@@ -369,6 +369,13 @@ void LightMeter::getLux() {
     oled.drawNo(120, 20);
     ledStatus(LED_KO);
   }
+  if (triggerState == hSHeld) {
+    oled.holdStyle1(100, 22);
+  } else {
+    // Clear hold
+    oled.setCursor(100, 22);
+    oled.print("    ");
+  }
 }
 
 // TODO: handle duration

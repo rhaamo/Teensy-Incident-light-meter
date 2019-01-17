@@ -49,7 +49,7 @@ This menu displays the following:
   - top-right: RAW visible value
   - bottom: calculated LUX value
 
-  You can also press the encoder button to Hold the LUX value, no indicator implemented yet.
+  You can also press the encoder button to Hold the LUX value, hold will be indicated on bottom right.
 
 ### Mary
 
