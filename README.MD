@@ -44,7 +44,6 @@ The TSL2591 doesn't permit changing I2C address, you can only have one.
 
  - Reducing enclosure thickness by around 5mm by trimming the teensyview pins and document the needed size
  - Design some sort of sliding window to protect the sensor
- - Test sensor overflow and alert
  - Games, because why not ?
 
 ### Hardware
