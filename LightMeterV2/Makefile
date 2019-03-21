@@ -1,20 +1,22 @@
 .PHONY: all clean upload monitor lint format
 
+PIO := /home/dashie/.platformio/penv/bin/pio
+
 all:
-	pio run
+	${PIO} run
 
 lint:
 	cpplint --extensions=cpp,h,ino $(shell find src  \( ! -regex '.*/\..*' \) \
 				-type f -a \( -name "*\.cpp" -o -name "*\.h" -o -name "*\.ino" \) )
 
 clean:
-	pio run --target clean
+	${PIO} run --target clean
 
 upload:
-	pio run --target upload
+	${PIO} run --target upload
 
 monitor:
-	pio run --target monitor
+	${PIO} run --target monitor
 
 format:
 	clang-format -i src/*.*
