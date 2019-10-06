@@ -1,3 +1,20 @@
+# Latests informations not yet committed
+
+The standard for calibration is ISO 2728-1974, available by finding "indian standard 10917-1984" which is the absolute same.
+
+Key points:
+- Lux to Candela formula is: Iv(candela) = Ev(lux) x square(Distance in meter from the light source)
+- We use the Artithmetic film speed (ISO/ASA)
+
+Calibration formula is:
+- K = (L*t*S)/square of A; Where L: luminance in candala per m2 (see previous formula for lux to cd/m2); t: shutter speed in seconds; S: arithmetic film speed; A: f-number
+
+This is the part 6 of page 7 of the IS, Table 2 on next page present the values of shutter speed, f-number and ISO (S) for each calibration step.
+
+From the standard the light is a 4700K tungsten with a 2855,6K light filter.
+
+For practical reasons I will uses a 2850K light bulb and a diffuser, which is nearly enough for this, without costing an arm to get (filter and light bulb).
+
 # Notes
 
 Incident light metering is done on the subject, sensor is covered with a translucent plastic dome, pointing at the light source.
