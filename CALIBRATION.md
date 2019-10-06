@@ -15,6 +15,8 @@ From the standard the light is a 4700K tungsten with a 2855,6K light filter.
 
 For practical reasons I will uses a 2850K light bulb and a diffuser, which is nearly enough for this, without costing an arm to get (filter and light bulb).
 
+A calibration from theses informations have not yet been done, this file will be updated when done, and the right K value determinated.
+
 # Notes
 
 Incident light metering is done on the subject, sensor is covered with a translucent plastic dome, pointing at the light source.
