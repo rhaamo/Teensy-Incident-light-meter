@@ -7,7 +7,7 @@ Key points:
 - We use the Artithmetic film speed (ISO/ASA)
 
 Calibration formula is:
-- K = (L*t*S)/square of A; Where L: luminance in candala per m2 (see previous formula for lux to cd/m2); t: shutter speed in seconds; S: arithmetic film speed; A: f-number
+- K = (L\*t\*S)/square of A; Where L: luminance in candala per m2 (see previous formula for lux to cd/m2); t: shutter speed in seconds; S: arithmetic film speed; A: f-number
 
 This is the part 6 of page 7 of the IS, Table 2 on next page present the values of shutter speed, f-number and ISO (S) for each calibration step.
 
