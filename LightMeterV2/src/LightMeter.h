@@ -46,8 +46,15 @@
  * Difference between thoses two is 1/6 EV
  * Kevin Agnes used 129 [2591, dome]
  * Kevin Kadooka used 64 [2561, no dome]
+ * Previous K was 30
  */
-#define KValue 30
+#define KValue 627
+/* dashie's notes: it seems weird to me to need a value that high
+    I calculated it by getting the lux value from the meter
+    Getting f-stop and iso from dslr and time it would expose (by using the meter in "whole frame" not spot)
+    And calculating manually my speed value on a calculator by changing the KValue until I get something 
+    close from the DSLR one
+    */
 
 /* C Calibration constant [Cine/Video]
  * PhotoChemicals used 25 [2591, dome unknown]
