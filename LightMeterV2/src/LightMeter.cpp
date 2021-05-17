@@ -3,7 +3,7 @@
 //
 #include "LightMeter.h"  // NOLINT
 
-Adafruit_TSL2591 luxMeter = Adafruit_TSL2591(2591);
+hp_BH1750 luxMeter;
 
 OLEDFunctions oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
@@ -132,9 +132,9 @@ void setup() {
     uiPbUp.onRelease(onButtonReleased);
     uiPbDown.onRelease(onButtonReleased);
 
-    luxMeter.begin();
-    luxMeter.setTiming(SENSOR_INTTIME_DEFAULT);
-    luxMeter.enable();
+    luxMeter.begin(BH1750_TO_GROUND);
+    luxMeter.calibrateTiming();
+    luxMeter.start();
 }
 
 void loop() {
@@ -238,39 +238,7 @@ void LightMeter::ledStatus(int state, int delay, int repeat) {
 }
 
 void LightMeter::getRawLux() {
-    if (needHigh) {
-        luxMeter.setGain(TSL2591_GAIN_HIGH);
-        luxMeter.setTiming(SENSOR_INTTIME_HIGH);  // 200ms
-    } else {
-        luxMeter.setGain(TSL2591_GAIN_LOW);
-        luxMeter.setTiming(SENSOR_INTTIME_DEFAULT);  // 400ms
-    }
-
-    sensors_event_t event;
-    luxMeter.getEvent(&event);
-    float tempLux = event.light;
-    // When sensor get saturated (normally in transition between gain)
-    // Lux value is restored to 201 for an effective change in Gain
-    // (from 428x to 1x)
-    // Overflow is displayed indicating that this value is not correct
-    if ((event.light == 0) | (event.light > 4294966000.0) |
-        (event.light < -4294966000.0)) {
-        tempLux = 201;
-        overflow = 1;
-    } else {
-        overflow = 0;
-    }
-
-    tempLux =
-        tempLux *
-        DomeMultiplier;  // DomeMultiplier = 2.3 (calibration) INCIDENT only
-    if (tempLux < 40) {
-        needHigh = 1;
-    }  // ~ 1 +1/3 OFFSET (*0.26 in lux calibration)
-    if (tempLux > 200) {
-        needHigh = 0;
-    }  // Turns off High hain
-    // if (needHigh) {tempLux = tempLux*.26;}   // OFFSET corrected
+    float tempLux = luxMeter.getLux();
 
     if (triggerState == hSRun) {
         lux = tempLux;
@@ -308,25 +276,6 @@ void LightMeter::getLuxAndCompute(bool fstop) {
         Serial.print("1/");
     }
     Serial.print(value);
-    Serial.print(" ;gain: ");
-    tsl2591Gain_t gain = luxMeter.getGain();
-    switch (gain) {
-        case TSL2591_GAIN_LOW:
-            Serial.print(F("1x (Low)"));
-            break;
-        case TSL2591_GAIN_MED:
-            Serial.print(F("25x (Medium)"));
-            break;
-        case TSL2591_GAIN_HIGH:
-            Serial.print(F("428x (High)"));
-            break;
-        case TSL2591_GAIN_MAX:
-            Serial.print(F("9876x (Max)"));
-            break;
-    }
-    Serial.print(" ;timing: ");
-    Serial.print((luxMeter.getTiming() + 1) * 100, DEC);
-    Serial.println(F(" ms"));
 
     oled.eraseLowerArea();
     oled.drawLeftBracket(37, 10);
@@ -355,35 +304,6 @@ void LightMeter::getLuxAndCompute(bool fstop) {
 // Get and display bare LUX value
 void LightMeter::getLux() {
     (void)getRawLux();
-
-    // From getRawLux()
-    sensor_t sensor;
-    luxMeter.getSensor(&sensor);
-
-    if (needHigh) {
-        luxMeter.setGain(TSL2591_GAIN_HIGH);
-    } else {
-        luxMeter.setGain(TSL2591_GAIN_LOW);
-    }
-    // END
-
-    // From Adafruit
-    uint16_t ir, full;
-    uint32_t lum = luxMeter.getFullLuminosity();
-    lum = luxMeter.getFullLuminosity();
-    ir = lum >> 16;
-    full = lum & 0xFFFF;
-    // END
-
-    oled.setCursor(0, 11);
-    oled.print("ir: ");
-    oled.print(ir);
-    oled.print("   ");
-
-    oled.setCursor(64, 11);
-    oled.print("vis: ");
-    oled.print(full - ir);
-    oled.print("   ");
 
     // Print out the result
     oled.setCursor(0, 20);

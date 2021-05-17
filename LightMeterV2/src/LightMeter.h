@@ -8,7 +8,7 @@
 // Battery Babysitter
 #include <SparkFunBQ27441.h>
 // Light, Lux, Meter
-#include "Adafruit_TSL2591.h"
+#include <hp_BH1750.h>
 // For user config
 #include <EEPROM.h>
 // Oled display
