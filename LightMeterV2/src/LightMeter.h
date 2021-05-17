@@ -204,7 +204,7 @@ class LightMeter {
     // Static init of the encoder value
     uint32_t lastEncoderPos = -999;
 
-    bool needHigh = 0;  // If High Gain, Hi will be displayed, and gain == 428x
+    // not implemented
     bool overflow = 0;  // Sensor is saturated and display Overflow
 
     CfgUser ConfigUser;
